@@ -4,13 +4,18 @@
 (load "package://kinovaeus/kinova-interface.l")
 (load "package://spotkinovaeus/spotkinova-util.l")
 
-;; Do not forward methods defined in spot-kinova-interface class
-(defvar *non-forward-methods*
-  (list :init :default-controller :head-controller :angle-vector :angle-vector-raw :angle-vector-sequence :angle-vector-sequence-raw))
-
+;; defclass (To see raw definition, replace eval with macroexpand)
 (eval `(defclass spot-kinova-interface :super robot-interface
-         :slots ((spot-inst :forward (remove-if #'(lambda (x) (member x ,*non-forward-methods*)) ,(mapcar #'car (send spot-interface :methods))))
-                 (kinova-inst :forward (remove-if #'(lambda (x) (member x ,*non-forward-methods*)) ,(mapcar #'car (send kinova-interface :methods)))))))
+         :slots ((spot-inst :forward ,(mapcar #'car (send spot-interface :methods)))
+                 (kinova-inst :forward ,(mapcar #'car (send kinova-interface :methods))))
+         :documentation "This is a robot interface class for using spot + kinova.
+This class is designed to be able to call both the methods defined in spot-interface and kinova-interface.
+
+The following is priority when calling methods of the same name defined in different classes.
+1. spot-kinova-interface 2. robot-interface 3. spot-interface 4. kinova-interface
+Please see https://github.com/euslisp/EusLisp/issues/454#issuecomment-863136824
+"
+         ))
 
 (defmethod spot-kinova-interface
   (:init
@@ -51,42 +56,76 @@
               (cons :controller-state "arm_gen3/kinova_gen3_lite_joint_trajectory_controller/state")))) ;; @TODO: This is dummy topoic name.
       (list (cons :action-type control_msgs::FollowJointTrajectoryAction)
             (cons :joint-names (send-all (send robot :joint-list) :name))))))
-  (:angle-vector (av &optional tm &rest args)
+  (:angle-vector (av &optional (tm 3000) &rest args)
     (when (send self :simulation-modep)
       (return-from :angle-vector (send-super :angle-vector-simulation av tm :head-controller)))
-    (let* ((kinova-av (coerce (nthcdr 12 (coerce av cons)) float-vector))
-           (spot-av-list (butlast (coerce av cons) 6)))
+    (let ((av-orig (send robot :angle-vector)) spot-av kinova-av)
+      (send robot :angle-vector av)
+      (setq spot-av (send robot :spot-angle-vector))
+      (setq kinova-av (send robot :kinova-angle-vector))
+      (send robot :angle-vector av-orig)
       (setq kinova-av (send* kinova-inst :angle-vector kinova-av args))
-      (coerce (append spot-av-list (coerce kinova-av cons)) float-vector)))
-  (:angle-vector-raw (av &optional tm &rest args)
+      (coerce (append (coerce spot-av cons) (coerce kinova-av cons)) float-vector)))
+  (:angle-vector-raw (av &optional (tm 3000) &rest args)
     (when (send self :simulation-modep)
       (return-from :angle-vector-raw (send-super :angle-vector-simulation av tm :head-controller)))
-    (let* ((kinova-av (coerce (nthcdr 12 (coerce av cons)) float-vector))
-           (spot-av (coerce (butlast (coerce av cons) 6) float-vector)))
+    (let ((av-orig (send robot :angle-vector)) spot-av kinova-av)
+      (send robot :angle-vector av)
+      (setq spot-av (send robot :spot-angle-vector))
+      (setq kinova-av (send robot :kinova-angle-vector))
+      (send robot :angle-vector av-orig)
       (setq kinova-av (send* kinova-inst :angle-vector-raw kinova-av args))
       (coerce (append (coerce spot-av cons) (coerce kinova-av cons)) float-vector)))
-  (:angle-vector-sequence (avs &optional tms &rest args)
+  (:angle-vector-sequence (avs &optional (tms (list 3000)) &rest args)
     (when (send self :simulation-modep)
       (return-from :angle-vector-sequence (send-super :angle-vector-sequence avs tms :head-controller)))
-    (let* ((kinova-avs
-            (mapcar #'(lambda (av) (coerce (nthcdr 12 (coerce av cons)) float-vector)) avs))
-           (spot-avs
-            (mapcar #'(lambda (av) (coerce (butlast (coerce av cons) 6) float-vector)) avs)))
+    (let ((av-orig (send robot :angle-vector)) spot-avs kinova-avs)
+      (setq spot-avs
+            (mapcar #'(lambda (av)
+                        (send robot :angle-vector av)
+                        (send robot :spot-angle-vector))
+                    avs))
+      (setq kinova-avs
+            (mapcar #'(lambda (av)
+                        (send robot :angle-vector av)
+                        (send robot :kinova-angle-vector))
+                    avs))
+      (setq robot av-orig)
       (setq kinova-avs (send* kinova-inst :angle-vector-sequence kinova-avs args))
       (mapcar #'(lambda (spot-av kinova-av)
                   (coerce (append (coerce spot-av cons) (coerce kinova-av cons)) float-vector))
               spot-avs kinova-avs)))
-  (:angle-vector-sequence-raw (avs &optional tms &rest args)
+  (:angle-vector-sequence-raw (avs &optional (tms (list 3000)) &rest args)
     (when (send self :simulation-modep)
       (return-from :angle-vector-sequence-raw (send-super :angle-vector-sequence avs tms :head-controller)))
-    (let* ((kinova-avs
-            (mapcar #'(lambda (av) (coerce (nthcdr 12 (coerce av cons)) float-vector)) avs))
-           (spot-avs
-            (mapcar #'(lambda (av) (coerce (butlast (coerce av cons) 6) float-vector)) avs)))
+    (let ((av-orig (send robot :angle-vector)) spot-avs kinova-avs)
+      (setq spot-avs
+            (mapcar #'(lambda (av)
+                        (send robot :angle-vector av)
+                        (send robot :spot-angle-vector))
+                    avs))
+      (setq kinova-avs
+            (mapcar #'(lambda (av)
+                        (send robot :angle-vector av)
+                        (send robot :kinova-angle-vector))
+                    avs))
+      (setq robot av-orig)
       (setq kinova-avs (send* kinova-inst :angle-vector-sequence-raw kinova-avs args))
       (mapcar #'(lambda (spot-av kinova-av)
                   (coerce (append (coerce spot-av cons) (coerce kinova-av cons)) float-vector))
               spot-avs kinova-avs)))
+  (:go-pos (&rest args)
+    (send* spot-inst :go-pos args))
+  (:go-pos-no-wait (&rest args)
+    (send* spot-inst :go-pos-no-wait args))
+  (:go-wait (&rest args)
+    (send* spot-inst :go-wait args))
+  (:go-velocity (&rest args)
+    (send* spot-inst :go-velocity args))
+  (:go-stop (&rest args)
+    (send* spot-inst :go-stop args))
+  (:gripper (&rest args)
+    (send* kinova-inst :gripper args))
   )
 
 (defun spot-kinova-init (&key (type :gen3_robotiq_2f_140) &rest args &allow-other-keys)
