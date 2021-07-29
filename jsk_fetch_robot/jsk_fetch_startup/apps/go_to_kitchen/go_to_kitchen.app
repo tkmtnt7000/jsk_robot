@@ -5,6 +5,8 @@ interface: jsk_fetch_startup/go_to_kitchen.interface
 icon: jsk_fetch_startup/go_to_kitchen.png
 timeout: 1200
 plugins:
+  - name: service_notification_saver_plugin
+    type: app_notification_saver/service_notification_saver
   - name: head_camera_video_recorder_plugin
     type: app_recorder/audio_video_recorder_plugin
     launch_args:
@@ -143,6 +145,7 @@ plugins:
 plugin_order:
   start_plugin_order:
     - move_base_cancel_plugin
+    - service_notification_saver_plugin
     - head_camera_video_recorder_plugin
     - object_detection_video_recorder_plugin
     - panorama_video_recorder_plugin
@@ -156,6 +159,7 @@ plugin_order:
     - mail_notifier_plugin
   stop_plugin_order:
     - move_base_cancel_plugin
+    - service_notification_saver_plugin
     - head_camera_video_recorder_plugin
     - object_detection_video_recorder_plugin
     - panorama_video_recorder_plugin
