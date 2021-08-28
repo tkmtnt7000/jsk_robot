@@ -32,6 +32,7 @@
   <exec_depend>jsk_spot_teleop</exec_depend>
   <exec_depend>jsk_spot_description</exec_depend>
   <exec_depend>spoteus</exec_depend>
+  <exec_depend>spot_autowalk_data</exec_depend>
 
   <test_depend>rostest</test_depend>
 
