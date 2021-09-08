@@ -160,6 +160,7 @@ plugin_order:
     - tweet_notifier_plugin
     - speech_notifier_plugin
     - mail_notifier_plugin
+    - move_base_cancel_plugin
   stop_plugin_order:
     - move_base_cancel_plugin
     - service_notification_saver_plugin
@@ -175,3 +176,4 @@ plugin_order:
     - tweet_notifier_plugin
     - speech_notifier_plugin
     - mail_notifier_plugin
+    - move_base_cancel_plugin
