@@ -119,6 +119,9 @@ nodes:
       - graph: '$(find spot_autowalk_data)/autowalk/eng2_1FElevator_to_1FGarbageCollectionAreaSouth_via213.walk'
         id: 'oafish-vervet-w.bCe7FjEILCP8oBQg6Miw=='
         localization_method: 'fiducial'
+      - graph: '$(find spot_autowalk_data)/autowalk/eng2_GarbageCollectionArea_to_1FElevator.walk'
+        id: 'lumpen-nasua-sYVpiDY3HCjVG7g99U..Gw=='
+        localization_method: 'fiducial'
     switchbot_device: '/eng2/1f/elevator_bot_up'
     floor: 1
     floor_height: -4.5
@@ -263,6 +266,15 @@ nodes:
       - graph: '$(find spot_autowalk_data)/autowalk/eng2_1FElevator_to_1FGarbageCollectionAreaEast.walk'
         id: 'podgy-oxen-t+KIiX.QiVaFGcphBsrekA=='
         localization_method: 'waypoint'
+      - graph: '$(find spot_autowalk_data)/autowalk/eng2_GarbageCollectionArea_to_1FElevator.walk'
+        id: 'eleven-pigeon-OvqDtAhq.TPvY.vUfUR8yQ=='
+        localization_method: 'fiducial'
+      - graph: '$(find spot_autowalk_data)/autowalk/eng2_GarbageCollectionArea_inside_clockwise.walk'
+        id: 'roofed-osprey-Ryeere47g.B7nqB5L0+tnA=='
+        localization_method: 'fiducial'
+      - graph: '$(find spot_autowalk_data)/autowalk/eng2_GarbageCollectionArea_inside_clockwise.walk'
+        id: 'bluish-rhesus-emgX64aWXb6AVEaZmVuuCw=='
+        localization_method: 'fiducial'
   'eng2_GarbageCollectionArea_south':
     name_en: 'Garbage collection area'
     name_jp: 'ゴミ捨て場'
