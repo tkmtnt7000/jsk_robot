@@ -174,5 +174,21 @@ def main():
         extract=True
     )
 
+    download_data(
+        pkg_name=PKG,
+        path='autowalk/eng2_73b2kitchen.walk.tar.gz',
+        url='https://drive.google.com/uc?id=1h6Jjl74o2lLVBrExGLHwjHIEBSfXQ9hg',
+        md5='f9b82accafd736a15387d011eacaf5cc',
+        extract=True
+    )
+
+    download_data(
+        pkg_name=PKG,
+        path='autowalk/eng2_73b2trashcans.walk.tar.gz',
+        url='https://drive.google.com/uc?id=1eqnx3VqMMEUyQhFJ226Aq3M31G6dtPsq',
+        md5='5bc837e42d43fddbdb3c8d2f0e9507e6',
+        extract=True
+    )
+
 if __name__ == '__main__':
     main()
