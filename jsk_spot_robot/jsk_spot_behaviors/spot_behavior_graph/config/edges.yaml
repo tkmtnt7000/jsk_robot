@@ -339,3 +339,39 @@ edges:
     cost: 10
     args:
       graph: '$(find spot_autowalk_data)/autowalk/eng2_1FElevator_to_1FGarbageCollectionAreaSouth.walk'
+  - from: 'eng2_2FElevator'
+    to: 'eng2_2Ftrashcan_front'
+    behavior_type: 'spot_basic_behaviors.walk_behavior.WalkBehavior'
+    cost: 10
+    args:
+      graph: '$(find spot_autowalk_data)/autowalk/eng2_2FElevator_to_subway.walk'
+  - from: 'eng2_2Ftrashcan_front'
+    to: 'eng2_2FElevator'
+    behavior_type: 'spot_basic_behaviors.walk_behavior.WalkBehavior'
+    cost: 10
+    args:
+      graph: '$(find spot_autowalk_data)/autowalk/eng2_2FElevator_to_subway.walk'
+  - from: 'eng2_73B2'
+    to: 'eng2_8Ftrashcan_front'
+    behavior_type: 'spot_basic_behaviors.walk_behavior.WalkBehavior'
+    cost: 10
+    args:
+      graph: '$(find spot_autowalk_data)/autowalk/eng2_73B2_to_81C1.walk'
+  - from: 'eng2_8Ftrashcan_front'
+    to: 'eng2_73B2'
+    behavior_type: 'spot_basic_behaviors.walk_behavior.WalkBehavior'
+    cost: 10
+    args:
+      graph: '$(find spot_autowalk_data)/autowalk/eng2_73B2_to_81C1.walk'
+  - from: 'eng2_3FElevator'
+    to: 'eng2_3Ftrashcan_front'
+    behavior_type: 'spot_basic_behaviors.walk_behavior.WalkBehavior'
+    cost: 10
+    args:
+      graph: '$(find spot_autowalk_data)/autowalk/eng2_3FElevator_to_Mech_Office.walk'
+  - from: 'eng2_3Ftrashcan_front'
+    to: 'eng2_3FElevator'
+    behavior_type: 'spot_basic_behaviors.walk_behavior.WalkBehavior'
+    cost: 10
+    args:
+      graph: '$(find spot_autowalk_data)/autowalk/eng2_3FElevator_to_Mech_Office.walk'

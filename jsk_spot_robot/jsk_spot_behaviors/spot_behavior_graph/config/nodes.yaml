@@ -344,3 +344,21 @@ nodes:
       - graph: '$(find spot_autowalk_data)/autowalk/eng2_MainEntrance_to_HongoMainGate_Daylight.walk'
         id: 'regal-bison-qmAA7fyZh10L2bzoTNqUFQ=='
         localization_method: 'waypoint'
+  'eng2_8Ftrashcan_front':
+    name_jp: '8階ごみ箱'
+    waypoints_on_graph:
+      - graph: '$(find spot_autowalk_data)/autowalk/eng2_73B2_to_81C1.walk'
+        id: 'smug-husky-fxIWgCw54O1LO.F1Epb5Hw=='
+        localization_method: 'waypoint'
+  'eng2_2Ftrashcan_front':
+    name_jp: '2階ごみ箱'
+    waypoints_on_graph:
+      - graph: '$(find spot_autowalk_data)/autowalk/eng2_2FElevator_to_subway.walk'
+        id: 'menial-afghan-y8Gq+TJkJ2fylvg6GPTn5w=='
+        localization_method: 'waypoint'
+  'eng2_3Ftrashcan_front':
+    name_jp: '3階ごみ箱'
+    waypoints_on_graph:
+      - graph: '$(find spot_autowalk_data)/autowalk/eng2_3FElevator_to_Mech_Office.walk'
+        id: 'manque-buck-7AHG0B+L.icCQW9cypCx7g=='
+        localization_method: 'waypoint'
