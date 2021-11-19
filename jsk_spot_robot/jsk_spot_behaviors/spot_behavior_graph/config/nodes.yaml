@@ -10,6 +10,9 @@ nodes:
       - graph: '$(find spot_autowalk_data)/autowalk/eng2_73B2_to_7FElevator.walk'
         id: 'hated-salmon-+oAmVbVKzwfer6BexXKNog=='
         localization_method: 'waypoint'
+      - graph: '$(find spot_autowalk_data)/autowalk/eng2_73B2_to_81C1.walk'
+        id: 'swishy-ermine-R4o+hy2kNPQ3wxldZVvslw=='
+        localization_method: 'waypoint'
   'eng2_73B1':
     name_en: '73B1'
     name_jp:
