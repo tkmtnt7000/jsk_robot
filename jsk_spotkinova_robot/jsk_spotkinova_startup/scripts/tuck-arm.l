@@ -1,7 +1,7 @@
 #!/usr/bin/env roseus
 
 (ros::roseus "tuck_arm")
-
+(ros::roseus-add-srvs "std_srvs")
 ;; (load "package://spotkinova/spotkinova-interface.l")
 ;; (spotkinova-init nil)
 
@@ -51,6 +51,23 @@
      (send self :tuck-arm)))
   (:tuck-arm ()
    (send *ri* :state :potentio-vector)
-   (send *ri* :angle-vector (send *spotkinova* :kinova-rest-pose) :fast))
+   (send *ri* :angle-vector (send *spotkinova* :kinova-rest-pose) 10000))
    (send *ri* :wait-interpolation)
   )
+
+(defclass kinova-arm-rest-server
+  :slots ())
+(defmethod kinova-arm-rest-server
+  (:init ()
+   (load "package://spotkinovaeus/spotkinova-interface.l")
+   (spotkinova-init)
+   (ros::advertise-service "/arm_gen3/kinova_rest" std_srvs::Trigger #'send self :rest-arm))
+  (:rest-arm (req)
+    (let ((m (send req :response)))
+      ;;(send *ri* :state :potentio-vector)
+      (send *ri* :angle-vector (send *spotkinova* :kinova-rest-pose) 10000)
+      (send *ri* :wait-interpolation)
+      (send m :success t)
+      (ros::ros-info "12111")
+      (ros::ros-info "~A" m)
+      m)))
