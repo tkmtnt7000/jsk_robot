@@ -66,11 +66,14 @@
     (let ((m (send req :response)))
       ;;(send *ri* :state :potentio-vector)
 ;;      (send *ri* :wait-interpolation)
-      (send m :success (send *ri* :angle-vector (send *spotkinova* :kinova-rest-pose) 10000))
-      (ros::ros-info "12111")
-      (ros::ros-info "~A" m)
-      (return-from :rest-arm m)
+      (send m :success
+            (progn
+              (send *ri* :state :potentio-vector)
+              (send *ri* :angle-vector (send *spotkinova* :kinova-rest-pose) 10000)
+              (send *ri* :wait-interpolation)))
       m)))
-
+(setq a (instance kinova-arm-rest-server :init))
+(ros::rate 1)
 (while (ros::ok)
-  (ros::spin-once))
+  (ros::spin-once)
+  (ros::sleep))
