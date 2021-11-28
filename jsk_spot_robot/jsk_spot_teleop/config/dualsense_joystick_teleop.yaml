@@ -11,3 +11,4 @@ button_stair_mode: 3
 button_locomotion_mode: -1
 num_buttons: 14
 axe_dock: 6
+enable_button: 4

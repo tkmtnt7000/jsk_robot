@@ -25,6 +25,7 @@ public:
         ros::param::param<int>("~button_stair_mode", button_stair_mode_, -1);
         ros::param::param<int>("~button_locomotion_mode", button_locomotion_mode_, -1);
         ros::param::param<int>("~axe_dock", axe_dock_, -1);
+        ros::param::param<int>("~enable_button", enable_button_, -1);
 
         ros::param::param<int>("~num_buttons", num_buttons_, 0);
         num_buttons_ = num_buttons_ < 0 ? 0 : num_buttons_;
@@ -370,10 +371,12 @@ public:
         }
 
         // dock
-        if ( axe_dock_ >= 0
+        if ( axe_dock_ >= 0 and enable_button_ >= 0
                 and axe_dock_ < msg->axes.size()
-                and axe_dock_ < num_buttons_ ) {
-            if ( msg->axes[axe_dock_] == -1 ) {
+                and axe_dock_ < num_buttons_
+                and enable_button_ < msg->axes.size()
+                and enable_button_ < num_buttons_) {
+            if ( msg->axes[axe_dock_] == -1 and enable_button_ == 1 ) {
                 if ( not pressed_[axe_dock_] ) {
                     this->say("dock calling");
                     spot_msgs::Dock::Response res;
@@ -384,7 +387,7 @@ public:
                     }
                     pressed_[axe_dock_] = true;
                 }
-            } else if ( msg->axes[axe_dock_] == 1 ) {
+            } else if ( msg->axes[axe_dock_] == 1 and enable_button_ == 1 ) {
                 if ( not pressed_[axe_dock_] ) {
                     this->say("undock calling");
                     if ( client_undock_.call(srv) && srv.response.success ) {
@@ -418,6 +421,7 @@ private:
     int button_stair_mode_;
     int button_locomotion_mode_;
     int axe_dock_;
+    int enable_button_;
 
     ros::ServiceClient client_estop_hard_;
     ros::ServiceClient client_estop_gentle_;
