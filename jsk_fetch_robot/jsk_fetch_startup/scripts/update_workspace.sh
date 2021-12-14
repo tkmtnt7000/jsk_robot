@@ -16,7 +16,7 @@ cd $HOME/ros/melodic
 catkin clean aques_talk collada_urdf_jsk_patch -y
 catkin init
 catkin config -DCMAKE_BUILD_TYPE=Release
-catkin build -v
+catkin build
 CATKIN_BUILD_RESULT=$?
 # Send mail
 MAIL_BODY=""
@@ -28,7 +28,8 @@ if [ $CATKIN_BUILD_RESULT -ne 0 ]; then
 fi
 set +x
 } > $LOGFILE 2>&1
-rostopic pub -1 /email jsk_robot_startup/Email "header:
+if [ -n "$MAIL_BODY" ]; then
+   rostopic pub -1 /email jsk_robot_startup/Email "header:
   seq: 0
   stamp: {secs: 0, nsecs: 0}
   frame_id: ''
@@ -39,3 +40,4 @@ receiver_address: 'fetch@jsk.imi.i.u-tokyo.ac.jp'
 smtp_server: ''
 smtp_port: ''
 attached_files: ['$LOGFILE']"
+fi
