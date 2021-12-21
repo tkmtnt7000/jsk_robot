@@ -230,7 +230,13 @@
   (:set-locomotion-mode (locomotion-hint) "Set locomotion mode" (call-set-locomotion-service "/spot/locomotion_mode" locomotion-hint))
   (:set-stair-mode (is-stair-mode) "Set stair mode" (call-set-bool-service "/spot/stair_mode" is-stair-mode))
   ;;
-  (:dock (dock-id) "Dock the robot" (call-dock-service "/spot/dock" dock-id))
+  (:dock (dock-id)
+    "
+    Dock the robot
+    Args:
+      dock-id: dock fiducial id
+    "
+    (call-dock-service "/spot/dock" dock-id))
   (:undock
    ()
    "Undock the robot"
