@@ -328,6 +328,15 @@
   (:body-pose
    ;; pose expected to get 3 elements float-vector (r p y), or eus coords.
     (pose &key (topic-name "/spot/body_pose"))
+    "
+    Set spot body pose
+    Args:
+      pose: (float-vector r p y) or (list rpy) or eus coords
+    Examples:
+      (send self :body-pose #f(0 0.2 0))
+      (send self :body-pose (list 0 0.2 0))
+      (send self :body-pose (send *robot* :copy-worldcoords))
+    "
     (when (send self :simulation-modep)
       (return-from :body-pose t))
     (unless (ros::get-topic-publisher topic-name)
