@@ -318,6 +318,7 @@
         nil)
       ))
   (:get-current-spot ()
+    "get current node id "
     (let (msg)
       (setq msg (one-shot-subscribe "/spot_behavior_manager_server/current_node_id" std_msgs::String :timeout 5000))
       (if (not msg)
