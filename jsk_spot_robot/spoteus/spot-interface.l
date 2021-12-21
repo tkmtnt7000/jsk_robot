@@ -332,6 +332,8 @@
     Set spot body pose
     Args:
       pose: (float-vector r p y) or (list rpy) or eus coords
+      - key
+        topic-name: Set the topic name to publish (default \"/spot/body_pose\")
     Examples:
       (send self :body-pose #f(0 0.2 0))
       (send self :body-pose (list 0 0.2 0))
