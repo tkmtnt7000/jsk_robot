@@ -360,9 +360,9 @@
       (notify-app "trashcan occupancy"
                   (ros::time-now)
                   location
-                  (format nil "~A Trashcan occupancy is ~A"
+                  (format nil "~A Trashcan occupancy is ~A%"
                               notify-text
-                              occupancy)))))
+                              (* 100 occupancy))))))
 
 (defun inspect-kitchen (&key (tweet t))
   (report-move-to-sink-front-success)
