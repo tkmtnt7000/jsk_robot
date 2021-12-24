@@ -52,7 +52,7 @@ public:
       // decide trashbin center position
       *handleCenterPosition = handle->pose.position;
       trashbinCenterPosition->x =
-          handleCenterPosition->x + this->_trashbinL / 2.0;
+          0.05 + handleCenterPosition->x + this->_trashbinL / 2.0;
       trashbinCenterPosition->y = handleCenterPosition->y;
       trashbinCenterPosition->z =
           handleCenterPosition->z - this->_trashbinH / 2.0;
