@@ -1,4 +1,5 @@
 <launch>
   <node pkg="rviz" type="rviz" name="$(anon jsk_startup_rviz)"
-        args="-d $(find jsk_fetch_startup)/config/jsk_startup.rviz" />
+        args="-d $(find jsk_fetch_startup)/config/jsk_kitchen_demo.rviz" />
+        <!-- args="-d $(find jsk_fetch_startup)/config/jsk_startup.rviz" /> -->
 </launch>
