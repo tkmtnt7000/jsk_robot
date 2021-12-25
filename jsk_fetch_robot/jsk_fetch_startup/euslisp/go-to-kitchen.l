@@ -4,7 +4,7 @@
 (load "package://jsk_fetch_startup/euslisp/navigation-utils.l")
 
 
-(defun main (&key (tweet t) (n-dock-trial 3) (n-kitchen-trial 3) (n-trashcan-trial 3) (control-switchbot :api))
+(defun main (&key (tweet t) (n-dock-trial 99999) (n-kitchen-trial 3) (n-trashcan-trial 3) (control-switchbot :api))
   (when (not (boundp '*sm*))
     (go-to-kitchen-state-machine))
   (let ((result-state
