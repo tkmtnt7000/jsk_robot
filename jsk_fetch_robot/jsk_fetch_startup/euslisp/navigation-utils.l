@@ -355,7 +355,7 @@
                                       "Trashcan is not full."))))
     (when occupancy
       (ros::ros-info
-       (format nil "Notify app that the occupancy of trash can is measured."))
+       (format nil "Notify app that the occupancy of trash can is measured. ~A." occupancy))
       (notify-app "trashcan occupancy"
                   (ros::time-now)
                   location
