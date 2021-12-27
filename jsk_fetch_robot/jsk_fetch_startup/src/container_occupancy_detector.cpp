@@ -27,6 +27,7 @@ const float FLOAT_MAX = std::numeric_limits<float>::max();
 class ContainerOccupancyDetector{
 private:
   std::string _inputBoxes, _inputCloud, _debugCloud, _outputBoxes;
+  double _attentionL, _attentionW; // Set attention area
   ros::Subscriber _containerBoxesSub, _pointCloudSub;
   ros::Publisher _debugPointPub, _occupancyPub;
   geometry_msgs::Quaternion defaultOrientation;
@@ -38,6 +39,8 @@ private:
 public:
   // constructor
   ContainerOccupancyDetector(ros::NodeHandle &_nh, ros::NodeHandle &_pnh){
+    ros::param::param<double>("~attention_l", this->_attentionL, 0.1);
+    ros::param::param<double>("~attention_w", this->_attentionW, 0.1);
     this->_tfListener = new tf2_ros::TransformListener(_tfBuffer);
     this->_containerBoxesSub = _nh.subscribe("input_boxes", 10, &ContainerOccupancyDetector::CalculateOccupancyCB, this);
     this->_pointCloudSub = _nh.subscribe("input_cloud", 10, &ContainerOccupancyDetector::PointCloudTransformCB, this);
@@ -85,14 +88,16 @@ public:
         pcl::PointXYZ minPt, maxPt;
         float occupancy;
         boxFilter.setMin(Eigen::Vector4f((msg.boxes.at(i).pose.position.x -
-                                          msg.boxes.at(i).dimensions.x / 2.0),
+                                          this->_attentionL / 2.0),
+                                          //msg.boxes.at(i).dimensions.x / 2.0),
                                          (msg.boxes.at(i).pose.position.y -
-                                          msg.boxes.at(i).dimensions.y / 2.0),
+                                          this->_attentionW / 2.0),
+                                          // msg.boxes.at(i).dimensions.y / 2.0),
                                          FLOAT_MIN, 1.0f));
         boxFilter.setMax(Eigen::Vector4f((msg.boxes.at(i).pose.position.x +
-                                          msg.boxes.at(i).dimensions.x / 2.0),
+                                          this->_attentionL / 2.0),
                                          (msg.boxes.at(i).pose.position.y +
-                                          msg.boxes.at(i).dimensions.y / 2.0),
+                                          this->_attentionW / 2.0),
                                          FLOAT_MAX, 1.0f));
         boxFilter.setInputCloud(pclCloud);
         boxFilter.filter(*boxFilteredCloud);
@@ -107,6 +112,12 @@ public:
                                msg.boxes.at(i).dimensions.z / 2.0);
         // if some point clouds in boundingbox over bounding height
         // TODO publish occupancy instead
+        boxOccupancy.boxes.at(i).dimensions.x = this->_attentionL;
+        boxOccupancy.boxes.at(i).dimensions.y = this->_attentionW;
+        boxOccupancy.boxes.at(i).dimensions.z = occupancy *
+                                                msg.boxes.at(i).dimensions.z;
+        boxOccupancy.boxes.at(i).pose.position.z = occupancy *
+                                                   msg.boxes.at(i).pose.position.z;
         boxOccupancy.boxes.at(i).value = occupancy;
       }
       this->_occupancyPub.publish(boxOccupancy);
