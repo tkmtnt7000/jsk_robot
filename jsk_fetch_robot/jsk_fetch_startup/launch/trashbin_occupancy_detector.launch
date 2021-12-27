@@ -142,6 +142,10 @@
   <node pkg="jsk_fetch_startup" type="container_occupancy_detector"
         name="container_occupancy_detector"
         output="screen" respawn="true">
+    <rosparam>
+      attention_l: 0.1
+      attention_w: 0.07
+    </rosparam>
     <remap from="input_boxes" to="$(arg DEFAULT_NAMESPACE)/trashbin/boxes" />
     <remap from="input_cloud" to="$(arg POINTCLOUD_INPUT)" />
     <remap from="debug_cloud" to="$(arg POINTCLOUD_INPUT)/debug/points" />
