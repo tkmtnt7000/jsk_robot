@@ -20,6 +20,11 @@
   <arg name="DEPTH_CAMERA_INFO" value="/head_camera/depth_registered/throttled/camera_info" />
   <arg name="DEPTH_IMAGE" value="/head_camera/depth_registered/throttled/image_rect" />
 
+  <arg name="L515_RGB_CAMERA_INFO" value="/l515_head/color/camera_info" />
+  <arg name="L515_RGB_IMAGE" value="/l515_head/color/image_raw" />
+  <arg name="L515_DEPTH_CAMERA_INFO" value="/l515_head/aligned_depth_to_color/camera_info" />
+  <arg name="L515_DEPTH_IMAGE" value="/l515_head/aligned_depth_to_color/image_raw" />
+
   <param name="use_sim_time" value="true" />
   <param name="robot_description" textfile="$(find fetch_description)/robots/fetch.urdf" />
 
@@ -60,6 +65,11 @@
       step_y: 4
     </rosparam>
   </node>
+
+  <node name="l515_rgb_decompress" pkg="image_transport" type="republish"
+        args="compressed in:=$(arg L515_RGB_IMAGE) raw out:=$(arg L515_RGB_IMAGE)" />
+  <node name="l515_depth_decompress" pkg="image_transport" type="republish"
+        args="compressedDepth in:=$(arg L515_DEPTH_IMAGE) raw out:=$(arg L515_DEPTH_IMAGE)" />
 
   <!-- relay -->
   <node name="rgb_image_relay" pkg="topic_tools" type="relay"
