@@ -30,6 +30,10 @@
           /head_camera/depth_registered/throttled/camera_info
           /head_camera/rgb/throttled/image_rect_color/compressed
           /head_camera/depth_registered/throttled/image_rect/compressedDepth
+          /l515_head/color/camera_info
+          /l515_head/aligned_depth_to_color/camera_info
+          /l515_head/color/image_raw/compressed
+          /l515_head/aligned_depth_to_color/image_raw/compressedDepth
           /server_name/smach/container_init
           /server_name/smach/container_status
           /server_name/smach/container_structure
