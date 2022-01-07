@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="TOPIC_CAMERA_COLOR" default="/l515_head/color/image_raw" />
+  <arg name="TOPIC_CAMERA_DEPTH" default="/l515_head/aligned_depth_to_color/image_raw" />
+  <arg name="rgb_camera_info" value="/l515_head/color/camera_info" />
+
+  <node
+      pkg="nodelet"
+      type="nodelet"
+      name="l515_head_point_proc"
+      args="standalone depth_image_proc/point_cloud_xyzrgb">
+      <remap from="rgb/camera_info" to="$(arg rgb_camera_info)"/>
+      <remap from="rgb/image_rect_color" to="$(arg TOPIC_CAMERA_COLOR)"/>
+      <remap from="depth_registered/image_rect" to="$(arg TOPIC_CAMERA_DEPTH)"/>
+      <remap from="depth_registered/points" to="/l515_head/aligned_depth_to_color/points" />
+  </node>
+</launch>
