@@ -7,6 +7,10 @@
   <arg name="RS_SERIAL_NO_D435_FRONTLEFT" default="" />
   <arg name="RS_SERIAL_NO_L515_HEAD" default="" />
 
+  <arg name="TOPIC_CAMERA_COLOR" default="/color/image_raw" />
+  <arg name="TOPIC_CAMERA_DEPTH" default="/aligned_depth_to_color/image_raw" />
+  <arg name="rgb_camera_info" value="/color/camera_info" />
+
   <!-- t265 -->
   <group ns="t265" if="$(eval arg('RS_SERIAL_NO_T265') != '')">
     <rosparam>
@@ -100,6 +104,17 @@
       <arg name="enable_infra"          value="true"/>
       <arg name="respawn"              value="$(arg respawn)"/>
     </include>
+
+    <node
+      pkg="nodelet"
+      type="nodelet"
+      name="l515_head_point_proc"
+      args="standalone depth_image_proc/point_cloud_xyzrgb">
+      <remap from="rgb/camera_info" to="$(arg rgb_camera_info)"/>
+      <remap from="rgb/image_rect_color" to="$(arg TOPIC_CAMERA_COLOR)"/>
+      <remap from="depth_registered/image_rect" to="$(arg TOPIC_CAMERA_DEPTH)"/>
+      <remap from="depth_registered/points" to="/aligned_depth_to_color/points" />
+  </node>
   </group>
 
 </launch>
