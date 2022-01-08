@@ -89,7 +89,7 @@
             /kinova_wrist_camera/color/camera_info
             /kinova_wrist_camera/color/image_raw/compressed
             /kinova_wrist_camera/aligned_depth_to_color/camera_info
-            /kinova_wrist_camera/aligned_depth_to_color/image_raw/compressedDepth
+            /kinova_wrist_camera/aligned_depth_to_color_throttled/image_raw/compressedDepth
             "
         output="screen" />
 
@@ -174,6 +174,13 @@
             type="republish"
             name="detection_visualization_compress"
             args="raw in:=/spot_recognition/object_detection_image compressed out:=/spot_recognition/object_detection_image"
+            />
+        <!-- Compression node for kinova wrist camera depth -->
+        <node
+            pkg="image_transport"
+            type="republish"
+            name="kinova_wrist_camera_compress"
+            args="raw in:=/kinova_wrist_camera/aligned_depth_to_color/image_raw compressedDepth out:=/kinova_wrist_camera/aligned_depth_to_color_throttled/image_raw"
             />
     </group>
 
