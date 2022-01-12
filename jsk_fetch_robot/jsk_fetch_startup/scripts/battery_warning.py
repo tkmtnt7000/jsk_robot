@@ -8,6 +8,7 @@ import subprocess
 import yaml
 from sound_play.libsoundplay import SoundClient
 
+from std_msgs.msg import Empty
 from power_msgs.msg import BatteryState
 
 
@@ -16,13 +17,17 @@ class BatteryWarning(object):
         self.client_en = SoundClient(sound_action='/sound_play', blocking=True)
         self.client_jp = SoundClient(sound_action='/robotsound_jp', blocking=True)
         self.duration = rospy.get_param('~duration', 180.0)
-        self.threshold = rospy.get_param('~charge_level_threshold', 80.0)
+        self.charge_threshold = rospy.get_param('~charge_level_threshold', 80.0)
         self.step = rospy.get_param('~charge_level_step', 10.0)
+        self.shutdown_threshold = rospy.get_param('~shutdown_level_threshold', 20.0)
+        if self.charge_threshold <= self.shutdown_threshold:
+            rospy.logwarn('charge threshold should be greater than shutdown threshold.')
         self.volume = rospy.get_param('~volume', 1.0)
         address_yaml = rospy.get_param(
             '~address_yaml', "/var/lib/robot/battery_warning_address.yaml")
         self.subscriber = rospy.Subscriber(
             '/battery_state', BatteryState, self._cb, queue_size=1)
+        self.shutdown_pub = rospy.Publisher('/shutdown', Empty, queue_size=1)
         self.timer = rospy.Timer(rospy.Duration(self.duration), self._timer_cb)
         self.charge_level = None
         self.prev_charge_level = None
@@ -61,7 +66,16 @@ class BatteryWarning(object):
                     sender_address, receiver_address))
 
     def _warn(self):
-        if self.charge_level < self.threshold and not self.is_charging:
+        if self.charge_level < self.shutdown_threshold and not self.is_charging:
+            rospy.logerr("Low battery: only {}% remaining".format(self.charge_level))
+            sentence_jp = "バッテリー残り{}パーセントです。".format(self.charge_level)
+            sentence_jp += "もう限界ですので、バッテリー保護のためシャットダウンします。"
+            sentence_en = "My battery is {} percent remaining.".format(self.charge_level)
+            sentence_en += "I'm going to shut down to protect the battery."
+            self._speak(self.client_jp, sentence_jp, 'jp')
+            self._speak(self.client_en, sentence_en)
+            self.shutdown_pub.publish(Empty())
+        elif self.charge_level < self.charge_threshold and not self.is_charging:
             rospy.logerr("Low battery: only {}% remaining".format(self.charge_level))
             sentence_battery_jp = "バッテリー残り{}パーセントです。".format(self.charge_level)
             sentence_action_jp = "もう限界ですので、僕をお家にかえしてください。"
