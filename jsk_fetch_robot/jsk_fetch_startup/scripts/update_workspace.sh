@@ -13,6 +13,9 @@ wstool foreach --git 'git stash'
 wstool update --delete-changed-uris
 WSTOOL_UPDATE_RESULT=$?
 cd $HOME/ros/melodic
+rosdep update
+rosdep install --from-paths src --ignore-src -y -r
+ROSDEP_INSTALL_RESULT=$?
 catkin clean aques_talk collada_urdf_jsk_patch libcmt -y
 catkin init
 catkin config -DCMAKE_BUILD_TYPE=Release
@@ -22,6 +25,9 @@ CATKIN_BUILD_RESULT=$?
 MAIL_BODY=""
 if [ $WSTOOL_UPDATE_RESULT -ne 0 ]; then
     MAIL_BODY=$MAIL_BODY"Please wstool update workspace manually. "
+fi
+if [ $ROSDEP_INSTALL_RESULT -ne 0 ]; then
+    MAIL_BODY=$MAIL_BODY"Please rosdep install manually. "
 fi
 if [ $CATKIN_BUILD_RESULT -ne 0 ]; then
     MAIL_BODY=$MAIL_BODY"Please catkin build workspace manually."
