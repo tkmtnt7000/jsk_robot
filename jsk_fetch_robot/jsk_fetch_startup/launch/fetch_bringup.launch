@@ -260,7 +260,11 @@
     </rosparam>
   </node>
 
-  <!-- send email -->
-  <node name="send_mail" pkg="jsk_robot_startup" type="email_topic.py" output="screen" />
+  <!-- send email by rostopic -->
+  <node name="email_topic" pkg="jsk_robot_startup" type="email_topic.py" output="screen">
+    <rosparam>
+      email_info: /var/lib/robot/email_topic.yaml
+    </rosparam>
+  </node>
 
 </launch>
