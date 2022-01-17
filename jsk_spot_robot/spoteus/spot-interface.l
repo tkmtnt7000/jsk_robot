@@ -338,6 +338,7 @@
       (send self :body-pose #f(0 0.2 0))
       (send self :body-pose (list 0 0.2 0))
       (send self :body-pose (send *robot* :copy-worldcoords))
+      (send self :body-pose (make-coords)) ;; return to default pose
     "
     (when (send self :simulation-modep)
       (return-from :body-pose t))
