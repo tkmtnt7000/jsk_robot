@@ -94,6 +94,7 @@ plugins:
         - /server_name/smach/container_status
         - /server_name/smach/container_structure
         - /audio
+        - /dual_fisheye_to_panorama/quater/output
   - name: result_recorder_plugin
     type: app_recorder/result_recorder_plugin
     plugin_args:
