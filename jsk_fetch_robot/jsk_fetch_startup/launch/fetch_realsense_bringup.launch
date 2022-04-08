@@ -98,7 +98,6 @@
       <arg name="clip_distance"         value="-2"/>
       <arg name="enable_pointcloud"     value="true"/>
       <arg name="enable_infra"          value="true"/>
-      <arg name="enable_confidence"     value="false"/>
       <arg name="respawn"              value="$(arg respawn)"/>
     </include>
   </group>
