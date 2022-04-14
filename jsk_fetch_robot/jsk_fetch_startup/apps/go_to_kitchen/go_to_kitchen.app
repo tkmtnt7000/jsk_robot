@@ -24,6 +24,13 @@ plugins:
       video_width: 640
       video_framerate: 30
       video_encoding: RGB
+  - name: head_camera_video_without_audio_recorder_plugin
+    type: app_recorder/video_recorder_plugin
+    launch_args:
+      video_path: /tmp
+      video_title: go_to_kitchen_head_camera_without_audio.avi
+      video_topic_name: /head_camera/rgb/image_rect_color
+      video_fps: 30
   - name: object_detection_video_recorder_plugin
     type: app_recorder/audio_video_recorder_plugin
     launch_args:
@@ -39,6 +46,13 @@ plugins:
       video_width: 640
       video_framerate: 10
       video_encoding: RGB
+  - name: object_detection_video_without_audio_recorder_plugin
+    type: app_recorder/video_recorder_plugin
+    launch_args:
+      video_path: /tmp
+      video_title: go_to_kitchen_object_detection_without_audio.avi
+      video_topic_name: /edgetpu_object_detector/output/image
+      video_fps: 10
   - name: panorama_video_recorder_plugin
     type: app_recorder/video_recorder_plugin
     launch_args:
@@ -106,7 +120,9 @@ plugins:
       upload_file_paths:
         - /tmp/go_to_kitchen_result.yaml
         - /tmp/go_to_kitchen_head_camera.avi
+        - /tmp/go_to_kitchen_head_camera_without_audio.avi
         - /tmp/go_to_kitchen_object_detection.avi
+        - /tmp/go_to_kitchen_object_detection_without_audio.avi
         - /tmp/go_to_kitchen_panorama.avi
         - /tmp/go_to_kitchen_rviz.avi
         - /tmp/go_to_kitchen_audio.wav
@@ -115,7 +131,9 @@ plugins:
       upload_file_titles:
         - go_to_kitchen_result.yaml
         - go_to_kitchen_head_camera.avi
+        - go_to_kitchen_head_camera_without_audio.avi
         - go_to_kitchen_object_detection.avi
+        - go_to_kitchen_object_detection_without_audio.avi
         - go_to_kitchen_panorama.avi
         - go_to_kitchen_rviz.avi
         - go_to_kitchen_audio.wav
@@ -163,7 +181,9 @@ plugin_order:
     - service_notification_saver_plugin
     - smach_notification_saver_plugin
     - head_camera_video_recorder_plugin
+    - head_camera_video_without_audio_recorder_plugin
     - object_detection_video_recorder_plugin
+    - object_detection_video_without_audio_recorder_plugin
     - panorama_video_recorder_plugin
     - rviz_video_recorder_plugin
     - respeaker_audio_recorder_plugin
@@ -179,7 +199,9 @@ plugin_order:
     - service_notification_saver_plugin
     - smach_notification_saver_plugin
     - head_camera_video_recorder_plugin
+    - head_camera_video_without_audio_recorder_plugin
     - object_detection_video_recorder_plugin
+    - object_detection_video_without_audio_recorder_plugin
     - panorama_video_recorder_plugin
     - rviz_video_recorder_plugin
     - respeaker_audio_recorder_plugin
