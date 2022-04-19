@@ -97,4 +97,14 @@
   <include
       file="$(find jsk_fetch_startup)/launch/fetch_auto_dock.xml"
       if="$(arg enable_auto_dock)"/>
+
+  <!-- enable motor position holding via teleop -->
+  <node name="servo-on-teleop" pkg="jsk_fetch_startup" type="servo-on-teleop.l"
+        respawn="true" >
+    <rosparam>
+      /teleop/base/button_deadman: 10
+      /teleop/button_servo_on: 4
+    </rosparam>
+  </node>
+
 </launch>
