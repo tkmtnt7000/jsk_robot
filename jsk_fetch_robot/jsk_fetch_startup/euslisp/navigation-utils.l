@@ -305,6 +305,16 @@
   (ros::ros-info "room light is off.")
   (send *ri* :speak-jp "電気が消えています。" :wait t))
 
+(defun notify-recognition ()
+  (let* ((msg (one-shot-subscribe "/edgetpu_object_detector/output/class"
+                                  jsk_recognition_msgs::ClassificationResult))
+         (label-names (send msg :label_names)))
+    (when label-names
+      (ros::ros-info (format nil "Notify app that ~A is found." label-names))
+      (notify-app "object recognition"
+                  (send msg :header :stamp)
+                  "kitchen"
+                  (format nil "~A is found." label-names)))))
 
 (defun report-auto-dock-failure ()
   (ros::ros-error "failed auto-docking")
@@ -365,6 +375,7 @@
 
 (defun inspect-kitchen (&key (tweet t))
   (report-move-to-sink-front-success)
+  (notify-recognition)
   (if tweet
     (progn
       ;; stove
