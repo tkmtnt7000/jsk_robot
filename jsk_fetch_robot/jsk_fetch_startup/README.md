@@ -146,7 +146,11 @@ sudo mv rockmongo-1.1.7 /var/www/html/rockmongo
 # $MONGO["servers"][$i]["control_auth"] = false; // true;//enable control users, works only if mongo_auth=false
 ```
 
-## Teleoperation
+### Coral Edge TPU
+Create ROS workspace for Coral Edge TPU. Please see:
+https://github.com/knorth55/coral_usb_ros
+
+### Teleoperation
 
 For the JSK safe teleop system, please see [data flow diagram of safe_teleop.launch](https://github.com/jsk-ros-pkg/jsk_robot/tree/master/jsk_robot_common/jsk_robot_startup#launchsafe_teleoplaunch)
 
@@ -219,12 +223,23 @@ Please connect display, open a window of network manager.
 ### Access point
 
 Define access point setting, such as ssid:
-
-```bash
+```
 cd /etc/NetworkManager/system-connections
 ```
 
-## Log
+### Log
+
+tmuxinator makes it easy to check the important logs of fetch from command line. Currently, it shows the logs of the supervisor jobs.
+
+Install tmuxinator config.
+```bash
+rosrun jsk_fetch_startup install_tmuxinator.sh
+```
+
+Show logs
+```bash
+tmuxinator log
+```
 
 tmuxinator makes it easy to check the important logs of fetch from command line. Currently, it shows the logs of the supervisor jobs.
 
