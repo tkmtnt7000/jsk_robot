@@ -1,53 +1,75 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import time
-from urllib import request
 from bs4 import BeautifulSoup
 import datetime
+import rospy
 import subprocess
+import sys
+if sys.version_info.major == 2:
+    import urllib2
+else:
+    from urllib import request
 
 
-def web():
-    url = 'https://zatsuneta.com/category/random.html'
-    response = request.urlopen(url)
-    soup = BeautifulSoup(response)
+class RobotLaunchEmail:
 
-    topstories = soup.find('div', class_="article")
-    title = topstories.find('a')['title']
-    detail_url = topstories.find('a')['href']
-    contents = topstories.find('p').text
-    print(title)
-    print(contents)
-    response.close()
+    def get_tips(self):
+        url = 'https://zatsuneta.com/category/random.html'
+        if sys.version_info.major == 2:
+            response = urllib2.urlopen(url)
+        else:
+            response = request.urlopen(url)
+        soup = BeautifulSoup(response, 'html5lib')
+        topstories = soup.find('div', class_="article")
+        title = topstories.find('a')['title']
+        detail_url = topstories.find('a')['href']
+        contents = topstories.find('p').text
+        # rospy.loginfo('Tips title: {}'.format(title))
+        # rospy.loginfo('Tips contents: {}'.format(contents))
+        response.close()
 
-    return title, contents, detail_url
+        return title, contents, detail_url
 
-def email():
-    t_delta = datetime.timedelta(hours=9)
-    JST = datetime.timezone(t_delta, 'JST')
-    current_time = datetime.datetime.now(JST)
+    def send_mail(self):
+        sender_address = "unitreepro@jsk.imi.i.u-tokyo.ac.jp"
+        receiver_address = "tsukamoto@jsk.imi.i.u-tokyo.ac.jp"
+        current_time = datetime.datetime.now()
+        mail_title = "Unitree Go1 が起動しました"
+        message = ""
+        message += "おはよう。"
+        message += "{}時{}分です。\\n".format(
+            current_time.hour, current_time.minute)
+        message += "\\n"
 
-    message = ""
-    message += "おはよう。"
-    # if current_time.hour < 4:
-    #     message += "こんばんは。"
-    # elif current_time.hour < 10:
-    #     message += "おはよう。"
-    # elif current_time.hour < 17:
-    #     message +=  "こんにちは。"
-    # else:
-    #     message += "こんばんは。"
+        contents_title, contents, detail_url = self.get_tips()
+        message += "今日の豆知識 \\n"
+        # Character code differences between python versions
+        # See https://stackoverflow.com/questions/54153986/handling-encode-when-converting-from-python2-to-python3 #NOQA
+        if sys.version_info.major == 2:
+            message += "{}: {} \\n".format(
+                contents_title.encode('utf-8'), contents.encode('utf-8'))
+        else:
+            message += "{}: {} \\n".format(contents_title, contents)
+        message += "詳細: {}".format(detail_url)
 
-    message += "{}時{}分です。\\n".format(
-        current_time.hour, current_time.minute)
-    message += "\\n"
-    contents_title, contents, detail_url = web()
-    message += "今日の豆知識 \n"
-    message += "{}: {} \n".format(contents_title, contents)
-    message += "詳細: {}".format(detail_url)
-    cmd = "echo -e '{}' | mail -s 'Unitree Go1 が起動しました' -r unitreepro@jsk.imi.i.u-tokyo.ac.jp unitree@jsk.imi.i.u-tokyo.ac.jp".format(message)
-    # cmd = "echo -e '{}' | mail -s 'Unitree Go1 が起動しました' -r unitreepro@jsk.imi.i.u-tokyo.ac.jp yanokura@jsk.imi.i.u-tokyo.ac.jp".format(message)
-    subprocess.call(
-        cmd, shell=True)
+        cmd = "echo -e '{}'".format(message)
+        cmd += " | /usr/bin/mail -s '{}' -r {} {}".format(
+            mail_title, sender_address, receiver_address)
+        exit_code = subprocess.call(cmd, shell=True)
 
-email()
+        rospy.loginfo('Title: {}'.format(mail_title))
+        if exit_code > 0:
+            rospy.logerr(
+                'Failed to send e-mail:  {} -> {}'.format(
+                    sender_address, receiver_address))
+            rospy.logerr("You may need to do '$ sudo apt install mailutils'")
+        else:
+            rospy.loginfo(
+                'Succeeded to send e-mail: {} -> {}'.format(
+                    sender_address, receiver_address))
+
+
+if __name__ == '__main__':
+    RobotLaunchEmail = RobotLaunchEmail()
+    RobotLaunchEmail.send_mail()
