@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 import datetime
 import json
 import random
-import rospy
 import subprocess
 import sys
 if sys.version_info.major == 2:
@@ -122,17 +121,6 @@ class RobotLaunchEmail:
         cmd += " | /usr/bin/mail -s '{}' -r {} {}".format(
             mail_title, sender_address, receiver_address)
         exit_code = subprocess.call(cmd, shell=True)
-
-        rospy.loginfo('Title: {}'.format(mail_title))
-        if exit_code > 0:
-            rospy.logerr(
-                'Failed to send e-mail:  {} -> {}'.format(
-                    sender_address, receiver_address))
-            rospy.logerr("You may need to do '$ sudo apt install mailutils'")
-        else:
-            rospy.loginfo(
-                'Succeeded to send e-mail: {} -> {}'.format(
-                    sender_address, receiver_address))
 
 
 if __name__ == '__main__':
