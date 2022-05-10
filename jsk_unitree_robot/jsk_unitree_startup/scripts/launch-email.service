@@ -1,0 +1,19 @@
+[Unit]
+Description=Unitree launched email Service
+Requires=dhcpcd.service
+Requires=networking.service
+Requires=dnsmasq.service
+
+
+[Service]
+Type=simple
+ExecStart=/home/pi/jsk_catkin_ws/src/jsk_robot/jsk_unitree_robot/jsk_unitree_startup/scripts/launch-email.py
+RestartSec=10s
+Restart=on-failure
+# KillMode=control-group
+# KillSignal=SIGTERM
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target
