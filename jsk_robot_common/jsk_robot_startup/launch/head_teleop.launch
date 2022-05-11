@@ -28,7 +28,7 @@
   <!--             sensor_msgs/Joy -->
   <!--             'sensor_msgs.msg.Joy(header=m.header,axes=m.axes,buttons=[1])' -->
   <!--             -\-import sensor_msgs" /> -->
-  <node pkg="jsk_robot_startup" type="head_teleop_joy_completion.py" name="head_teleop_joy_completion">
+  <node pkg="jsk_robot_startup" type="unitree_head_teleop_joy_completion.py" name="head_teleop_joy_completion">
     <remap from="~joy_input" to="$(arg joy_topic_raw)" />
     <remap from="~joy_output" to="$(arg joy_topic_complemented)" />
 
