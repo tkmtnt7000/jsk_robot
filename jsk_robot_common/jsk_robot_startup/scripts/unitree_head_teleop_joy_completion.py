@@ -13,7 +13,16 @@ class JoyTopicCompletion:
         return 1 / (1 + math.exp(-x))
 
     def walkmode_callback(self, msg):
-        self.walk_mode = msg.data
+        rospy.loginfo("Change walking mode")
+        if msg.data == 0:
+            rospy.loginfo("tsukamoto version")
+        elif msg.data ==1:
+            rospy.lofinfo("iory version")
+        elif msg.data ==2:
+            rospy.loginfo("original version")
+        else:
+            rospy.logerr("Wrong number set. Change the number")
+        self.walking_mode = msg.data
 
     def callback(self,msg):
         # check if there is a change
@@ -93,7 +102,6 @@ class JoyTopicCompletion:
                     rr = r
                 else:
                     rr = 0
-            else:
 
             rospy.loginfo("raw: x={:5.2f}, y={:5.2f}, v={:5.2f}, r={:5.2f} -> cmd: x={:5.2f}, y={:5.2f}, r={:5.2f}".format(x, y, v, r, xx, yy, rr))
 
@@ -103,6 +111,16 @@ class JoyTopicCompletion:
             msg.axes[self.axis_angular] = rr
 
         self.pub.publish(msg)
+
+    def spin(self):
+        rate = rospy.Rate(10)
+        msg = Joy()
+        msg.axes = [0, 0, 0, 0, 0, 0]
+        msg.buttons = [0, 0, 0, 0, 0, 0]
+        while not rospy.is_shutdown():
+            rate.sleep()
+            if rospy.Time.now() - self.last_publish_time > rospy.Duration(3.0):
+                self.pub.publish(msg)
 
     def __init__(self):
         rospy.init_node('joy_topic_completion')
@@ -133,5 +151,6 @@ class JoyTopicCompletion:
 if __name__ == '__main__':
 
     joy_topic_completion = JoyTopicCompletion()
-    rospy.spin()
+    joy_topic_completion.spin()
+    #rospy.spin()
     del(joy_topic_completion)
