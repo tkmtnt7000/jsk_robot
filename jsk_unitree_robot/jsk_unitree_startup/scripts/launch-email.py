@@ -6,6 +6,7 @@ import datetime
 import json
 import random
 import subprocess
+import emoji
 import sys
 if sys.version_info.major == 2:
     import urllib2
@@ -95,6 +96,88 @@ class RobotLaunchEmail:
 
         return forecast_text
 
+    def add_emoji(self, mode):
+        """
+        0: 普通, 1: 喜び, 2: 安心, 3: 悪巧み, 4: 驚き, 5: 悲しみ, 6: 怒り, 7: 照れ,
+        8: 恐怖, 9: 好き, 10: ウインク・おふざけ, 11: 退屈, 12: 混乱
+        ref: https://www.webfx.com/tools/emoji-cheat-sheet/
+        """
+        dic = {0: ":neutral_face:", 1: ":smile:", 2: ":relieved:", 3: ":smirk:" ,
+　　　　　　　4: ":astonished:", 5: ":cry:", 6: ":angry:", 7: ":flushed:",
+           　 8: ":scream:", 9: ":heart_eyes:", 10: ":wink:", 11: ":sleepy:", 12: ":sweat:"}
+        return emoji.emojize(dic[mode], language='alias')
+
+    def get_fortune(self):
+        """
+        Get tips from horoscope
+        Return:
+            message : str
+        """
+        def add_comment_rank(rank):
+            if rank == 1:
+                message = "すごい、1位だ" + self.add_emoji(4)
+            elif rank <= 3:
+                message = str(rank) + "位！いい感じ" + self.add_emoji(1)
+            elif rank == 12:
+                message = "最下位..." + self.add_emoji(5) + "ラッキーアイテムをチェックしなきゃ！！"
+            else:
+                message = str(rank) + "位かぁ。そこそこかな" + self.add_emoji(0)
+            return "  " + message
+
+        def add_comment_love(point):
+            if point >= 9:
+                message = "出会いを求めてお散歩しちゃおっかな" + self.add_emoji(9)
+            elif point >= 6:
+                message = "気になってるあの子に会えちゃうかも" + self.add_emoji(7)
+            elif point <= 3:
+                message = "こんなの信じないぞ" + self.add_emoji(6)
+            else:
+                message = "平凡な一日になりそう..." + self.add_emoji(11)
+            return "  " + message
+
+        def add_comment_money(point):
+            if point >= 9:
+                message = "今日はお買い物しちゃおうかな" + self.add_emoji(10)
+            elif point <= 3:
+                message = "お金のつかい過ぎには気をつけよう..." + self.add_emoji(8)
+            else:
+                message = "今日は何事もなさそうかな" + self.add_emoji(2)
+            return "  " + message
+
+        def add_comment_business(point):
+            if point >= 7:
+                message = "研究頑張ったら良いことあるかも" + self.add_emoji(1)
+            elif point >= 4:
+                message = "いいのか悪いのか分からないなぁ" + self.add_emoji(12)
+            else:
+                message = "今日は研究さぼっちゃおうかな〜" + self.add_emoji(3)
+            return "  " + message
+
+        url = 'https://fortune.yahoo.co.jp/12astro/sagittarius'
+        if sys.version_info.major == 2:
+            response = urllib2.urlopen(url)
+            message = ""
+        else:
+            response = request.urlopen(url)
+            soup = BeautifulSoup(response, "html.parser")
+            fortune = soup.find('div', id="jumpdtl").find_all('td')
+            f_contents = soup.find('div', class_="yftn12a-md48").find_all('dd')[0].contents[0]
+            rank = fortune[-5].contents[0].contents[0][0:2]
+            point_overall = fortune[-3].contents[0].attrs['alt']
+            point_love = fortune[-3].contents[0].attrs['alt']
+            point_money = fortune[-2].contents[0].attrs['alt']
+            point_business = fortune[-1].contents[0].attrs['alt']
+            message = "今日の星座占い：いて座の運勢は【" + rank + "】" + add_comment_rank(int(rank[0])) + "\n"
+            message += f_contents + "\n"
+            message += "だって！\n"
+            message += "\n"
+            message += "総合運: " + point_overall + "\n"
+            message += "恋愛運: " + point_love + add_comment_love(int(point_love[-2])) + "\n"
+            message += "金運:   " + point_money + add_comment_money(int(point_money[-2])) + "\n"
+            message += "仕事運: " + point_money + add_comment_business(int(point_business[-2])) + "\n"
+            response.close()
+        return message
+
     def send_mail(self):
         """
         Send mail with mailutils
@@ -114,6 +197,9 @@ class RobotLaunchEmail:
         message += "今日の豆知識 \\n"
         message += "{}: {} \\n".format(contents_title, contents)
         message += "詳細: {} \\n".format(detail_url)
+        message += "\\n"
+
+        message += self.get_fortune()
         message += "\\n"
 
         # echo -e option is necessary in raspberry pi
