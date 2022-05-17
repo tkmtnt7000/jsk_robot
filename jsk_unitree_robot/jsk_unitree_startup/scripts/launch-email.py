@@ -103,8 +103,9 @@ class RobotLaunchEmail:
         ref: https://www.webfx.com/tools/emoji-cheat-sheet/
         """
         dic = {0: ":neutral_face:", 1: ":smile:", 2: ":relieved:", 3: ":smirk:" ,
-　　　　　　　4: ":astonished:", 5: ":cry:", 6: ":angry:", 7: ":flushed:",
-           　 8: ":scream:", 9: ":heart_eyes:", 10: ":wink:", 11: ":sleepy:", 12: ":sweat:"}
+               4: ":astonished:", 5: ":cry:", 6: ":angry:", 7: ":flushed:",
+               8: ":scream:", 9: ":heart_eyes:", 10: ":wink:", 11: ":sleepy:", 12: ":sweat:"}
+
         return emoji.emojize(dic[mode], language='alias')
 
     def get_fortune(self):
@@ -156,26 +157,26 @@ class RobotLaunchEmail:
         url = 'https://fortune.yahoo.co.jp/12astro/sagittarius'
         if sys.version_info.major == 2:
             response = urllib2.urlopen(url)
-            message = ""
         else:
             response = request.urlopen(url)
-            soup = BeautifulSoup(response, "html.parser")
-            fortune = soup.find('div', id="jumpdtl").find_all('td')
-            f_contents = soup.find('div', class_="yftn12a-md48").find_all('dd')[0].contents[0]
-            rank = fortune[-5].contents[0].contents[0][0:2]
-            point_overall = fortune[-3].contents[0].attrs['alt']
-            point_love = fortune[-3].contents[0].attrs['alt']
-            point_money = fortune[-2].contents[0].attrs['alt']
-            point_business = fortune[-1].contents[0].attrs['alt']
-            message = "今日の星座占い：いて座の運勢は【" + rank + "】" + add_comment_rank(int(rank[0])) + "\n"
-            message += f_contents + "\n"
-            message += "だって！\n"
-            message += "\n"
-            message += "総合運: " + point_overall + "\n"
-            message += "恋愛運: " + point_love + add_comment_love(int(point_love[-2])) + "\n"
-            message += "金運:   " + point_money + add_comment_money(int(point_money[-2])) + "\n"
-            message += "仕事運: " + point_money + add_comment_business(int(point_business[-2])) + "\n"
-            response.close()
+        soup = BeautifulSoup(response, "html.parser")
+        fortune = soup.find('div', id="jumpdtl").find_all('td')
+        f_contents = soup.find('div', class_="yftn12a-md48").find_all('dd')[0].contents[0]
+        rank = fortune[-5].contents[0].contents[0][0:2]
+        point_overall = fortune[-4].contents[0].attrs['alt']
+        point_love = fortune[-3].contents[0].attrs['alt']
+        point_money = fortune[-2].contents[0].attrs['alt']
+        point_business = fortune[-1].contents[0].attrs['alt']
+        message = "今日の星座占い：いて座の運勢は【" + rank + "】" + add_comment_rank(int(rank[0])) + "\n"
+        message += f_contents + "\n"
+        message += "だって！\n"
+        message += "\n"
+        message += "総合運: " + point_overall + "\n"
+        message += "恋愛運: " + point_love + add_comment_love(int(point_love[-2])) + "\n"
+        message += "金運:   " + point_money + add_comment_money(int(point_money[-2])) + "\n"
+        message += "仕事運: " + point_business + add_comment_business(int(point_business[-2])) + "\n"
+        response.close()
+
         return message
 
     def send_mail(self):
@@ -207,7 +208,6 @@ class RobotLaunchEmail:
         cmd += " | /usr/bin/mail -s '{}' -r {} {}".format(
             mail_title, sender_address, receiver_address)
         exit_code = subprocess.call(cmd, shell=True)
-
 
 if __name__ == '__main__':
     RobotLaunchEmail = RobotLaunchEmail()
