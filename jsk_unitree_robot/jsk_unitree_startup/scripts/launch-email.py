@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import datetime
 import json
 import random
+import socket
 import subprocess
 import emoji
 import sys
@@ -186,7 +187,7 @@ class RobotLaunchEmail:
         sender_address = "unitreepro@jsk.imi.i.u-tokyo.ac.jp"
         receiver_address = "unitree@jsk.imi.i.u-tokyo.ac.jp"
         current_time = datetime.datetime.now()
-        mail_title = "Unitree Go1 が起動しました"
+        mail_title = "{} が起動しました".format(socket.gethostname())
         message = ""
         message += "おはよう。"
         message += "{}時{}分です。\\n".format(
