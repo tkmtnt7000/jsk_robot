@@ -50,6 +50,53 @@ sudo apt install librealsense2-dev=2.45.0-0~realsense0.4551
 sudo apt-mark hold librealsense2 librealsense2-dev
 ```
 
+### Install config.bash
+
+JSK fetch system uses some enviroment variables. To set them, copy `config.bash` to `/var/lib/robot/config.bash` and modify it.
+
+```bash
+roscd jsk_fetch_startup
+sudo cp config/config.bash /var/lib/robot/config.bash
+```
+
+descriptions of each variable are below.
+
+- `USE_BASE_CAMERA_MOUNT`
+  + Flag for robot model
+- `USE_HEAD_BOX`
+  + Flag for robot model
+- `USE_HEAD_L515`
+  + Flag for robot model
+- `USE_INSTA360_STAND`
+  + Flag for robot model
+- `RS_SERIAL_NO_T265`
+  + Serial number of Realsense T265 for visual odometry.
+  + realsense will not be launched when this is blank.
+- `RS_SERIAL_NO_D435_FRONTRIGHT`
+  + Serial number of Realsense D435 on the base
+  + realsense will not be launched when this is blank.
+- `RS_SERIAL_NO_D435_FRONTLEFT`
+  + Serial number of Realsense D435 on the base
+  + realsense will not be launched when this is blank.
+- `RS_SERIAL_NO_L515_HEAD`
+  + Serial number of Realsense L515 on the head
+  + realsense will not be launched when this is blank.
+- `NETWORK_DEFAULT_WIFI_INTERFACE`
+  + Wi-Fi network interface for network management scripts (e.g. `network_monitor.py` and `network-log-wifi.sh`)
+- `NETWORK_DEFAULT_PROFILE_ID`
+  + Network manager profile ID for network management scripts (`network_monitor.py`)
++ `NETWORK_DEFAULT_ROS_INTERFACE`
+  + Network interface which is used for ROS connection.
+  + `ROS_IP` is set to the IP address of this interface in supervisor jobs.
+
+It is also recommended to add lines below to each users's bashrc in the robot PC.
+
+```bash
+source /var/lib/robot/config.bash
+rossetmaster localhost
+rossetip $NETWORK_DEFAULT_ROS_INTERFACE
+```
+
 ### supervisor
 
 Important jobs for fetch operation are managed by supervisor.
@@ -220,11 +267,54 @@ Address: 133.11.216.145
 If two or more IP addresses apper, something is wrong.
 Please connect display, open a window of network manager.
 
-### Access point
+### Network configuration
 
-Define access point setting, such as ssid:
-```
+Ubuntu 18.04 uses [NetworkManager](https://wiki.archlinux.jp/index.php/NetworkManager) for network configuration.
+Network manager's profiles are in `/etc/NetworkManager/system-connections`.
+
+```bash
 cd /etc/NetworkManager/system-connections
+```
+
+You can also see profiles with `nmcli`, `nmtui` or `nm-connection-editor` (GUI) command.
+
+To see available connection profiles.
+
+```bash
+fetch@fetch1075:~$ nmcli connection
+NAME                UUID                                  TYPE      DEVICE
+netplan-eth1        433e484b-3493-3640-9368-395c0c752304  ethernet  eth1
+sanshiro-73B2       1f0f9db6-e448-41ef-9d27-e1ed4e48a4f5  wifi      wlan1
+Wired connection 1  eb557bda-e1bf-3ab7-89e9-1f839cd6b88a  ethernet  --
+fetch1075-hotspot   b85c6a8f-9d28-4cf3-95a0-6dc37229863d  wifi      --
+sanshiro-outside    d7ee2165-c93a-4050-862d-d0c381a546ab  wifi      --
+fetch@fetch1075:~$ nmcli c show sanshiro-73B2
+```
+
+To activate some connection.
+
+```bash
+fetch@fetch1075:~$ sudo nmcli c up sanshiro-outside
+[sudo] password for fetch:
+Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/5)
+fetch@fetch1075:~$ sudo nmcli c up sanshiro-73B2
+Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/6)
+```
+
+To edit connection profiles, use `nmtui` or `nm-connection-editor`
+
+### Default connection profiles
+
+fetch15 and fetch1075 has `sanshiro-73B2` and `sanshiro-outside` connections by default. (If not, please make them)
+
+- `sanshiro-73B2` (Connect `sanshiro` with fixed BSSID)
+- `sanshiro-outside` (Connect `sanshiro` without fixed BSSID)
+
+By default, `sanshiro-73B2` is activated for stable connection in 73B2.
+If you want to use fetch outside of 73B2, it is recommended to activate `sanshiro-outside`.
+
+```bash
+sudo nmcli c up sanshiro-outside
 ```
 
 ### Log
