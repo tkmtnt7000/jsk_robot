@@ -168,14 +168,18 @@ class RobotLaunchEmail:
         point_love = fortune[-3].contents[0].attrs['alt']
         point_money = fortune[-2].contents[0].attrs['alt']
         point_business = fortune[-1].contents[0].attrs['alt']
-        message = "今日の星座占い：いて座の運勢は【" + rank + "】" + add_comment_rank(int(rank[0])) + "\n"
+        rank_int = int(re.sub(r"\D", "", rank))
+        point_love_int = int(re.sub(r"\D", "", point_love)[2:])
+        point_money_int = int(re.sub(r"\D", "", point_money)[2:])
+        point_business_int = int(re.sub(r"\D", "", point_business)[2:])
+        message = "今日の星座占い：いて座の運勢は【" + rank + "】" + add_comment_rank(rank_int) + "\n"
         message += f_contents + "\n"
         message += "だって！\n"
         message += "\n"
         message += "総合運: " + point_overall + "\n"
-        message += "恋愛運: " + point_love + add_comment_love(int(point_love[-2])) + "\n"
-        message += "金運:   " + point_money + add_comment_money(int(point_money[-2])) + "\n"
-        message += "仕事運: " + point_business + add_comment_business(int(point_business[-2])) + "\n"
+        message += "恋愛運: " + point_love + add_comment_love(point_love_int) + "\n"
+        message += "金運:   " + point_money + add_comment_money(point_money_int) + "\n"
+        message += "仕事運: " + point_business + add_comment_business(point_business_int) + "\n"
         response.close()
 
         return message
