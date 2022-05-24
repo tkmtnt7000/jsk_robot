@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from email.mime.application import MIMEApplication
+from email.mime.audio import MIMEAudio
+from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import errno
@@ -51,6 +53,8 @@ class EmailTopic(object):
         send_mail_args['sender_address'] = '{}@{}'.format(getpass.getuser(), socket.gethostname())
         send_mail_args['smtp_server'] = 'localhost'
         send_mail_args['smtp_port'] = 25
+        # send_mail_args['smtp_server'] = 'smtp.gmail.com'
+        # send_mail_args['smtp_port'] = 587
         send_mail_args['attached_files'] = None
         # Set args from topic field. If the field is empty, use value in yaml
         for field in ['subject', 'body', 'sender_address', 'receiver_address',
@@ -60,6 +64,7 @@ class EmailTopic(object):
             else:
                 if field in self.email_info:
                     send_mail_args[field] = self.email_info[field]
+        print(send_mail_args[field])
         # Send email
         try:
             self._send_mail(**send_mail_args)
@@ -75,7 +80,51 @@ class EmailTopic(object):
         msg["Subject"] = subject
         msg["From"] = sender_address
         msg["To"] = receiver_address
-        msg.attach(MIMEText(body, 'plain', 'utf-8'))
+        # Support embed image and audio
+        for content in body:
+            if content.type == 'text':
+                msg.attach(MIMEText(content.message, 'plain', 'utf-8'))
+            elif content.type == 'html':
+                msg.attach(MIMEText(content.message, 'html'))
+            elif content.type == 'img':
+                if content.file_path == '':
+                    rospy.logwarn('File name is empty. Skipped.')
+                    continue
+                if not os.path.exists(content.file_path):
+                    rospy.logerr(
+                        'File {} is not found.'.format(content.file_path))
+                    return
+                with open(content.file_path, 'rb') as img:
+                    embed_img = MIMEImage(img.read())
+                    embed_img.add_header(
+                        'Content-ID', '<{}>'.format(content.file_path))
+                    msg.attach(embed_img)
+                text = '<img width=50% src="cid:{}">'.format(content.file_path)
+                bodytext = MIMEText(text, 'html')
+                msg.attach(bodytext)
+            elif content.type == 'audio':
+                if content.file_path == '':
+                    rospy.logwarn('File name is empty. Skipped.')
+                    continue
+                if not os.path.exists(content.file_path):
+                    rospy.logerr(
+                        'File {} is not found.'.format(content.file_path))
+                    return
+                with open(content.file_path, 'rb') as audio:
+                    embed_audio = MIMEAudio(audio.read())
+                    embed_audio.add_header(
+                        'Content-ID', '<hoge>')
+
+                    # embed_audio.add_header(
+                    #     'Content-ID', '<{}>'.format(content.file_path))
+                    msg.attach(embed_audio)
+                text = '<figure> <figurecaption>Listen!</figurecaption> <audio controls src="cid:hoge"></audio> </figure>'
+                # text = '<figure> <figurecaption>Listen!</figurecaption> <audio controls src="cid:{}"></audio> </figure>'.format(content.file_path)
+                bodytext = MIMEText(text, 'html')
+                msg.attach(bodytext)
+            else:
+                rospy.logwarn("Unknown content type {}".format(content.type))
+                continue
         # Attach file
         for attached_file in attached_files:
             if attached_file == '':
@@ -106,7 +155,6 @@ class EmailTopic(object):
             return
         if server.has_extn('STARTTLS'):
             server.starttls()
-        # Send Email
         server.sendmail(sender_address, receiver_address, msg.as_string())
         server.quit()
         rospy.loginfo('Send mail from {} to {} using {}:{}'.format(
