@@ -80,15 +80,20 @@ class RobotLaunchEmail:
             forecast_tuple = (
                 '日差しに気をつけて。',
                 'お散歩しよう！',
+                '良い天気だね',
+                '水分補給しっかり！',
             )
         elif "雨" in weather:
             forecast_tuple = (
                 '部屋の中で遊ぼう！',
                 '傘忘れていない？',
-            )
+                'いつ上がるかな?',
+                )
+            
         elif "雲" or "曇" or "くもり" in weather:
             forecast_tuple = (
                 '晴れたらいいな',
+                '気分が晴れないな',
             )
         elif "雪" in weather:
             forecast_tuple = (
