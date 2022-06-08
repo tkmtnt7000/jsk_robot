@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import argparse
 from bs4 import BeautifulSoup
 import datetime
-import json
-import random
-import socket
 import emoji
+import json
+import socket
 import sys
-import argparse
+import random
 import re
 import rospy
+from jsk_robot_startup.msg import Email
+from jsk_robot_startup.msg import EmailBody
 if sys.version_info.major == 2:
     import urllib2
 else:
     from urllib import request
-from jsk_robot_startup.msg import Email
-from jsk_robot_startup.msg import EmailBody
 
 
 class RobotLaunchEmail:
@@ -111,9 +111,10 @@ class RobotLaunchEmail:
         8: 恐怖, 9: 好き, 10: ウインク・おふざけ, 11: 退屈, 12: 混乱
         ref: https://www.webfx.com/tools/emoji-cheat-sheet/
         """
-        dic = {0: ":neutral_face:", 1: ":smile:", 2: ":relieved:", 3: ":smirk:" ,
-               4: ":astonished:", 5: ":cry:", 6: ":angry:", 7: ":flushed:",
-               8: ":scream:", 9: ":heart_eyes:", 10: ":wink:", 11: ":sleepy:", 12: ":sweat:"}
+        dic = {0: ":neutral_face:", 1: ":smile:", 2: ":relieved:",
+               3: ":smirk:", 4: ":astonished:", 5: ":cry:",
+               6: ":angry:", 7: ":flushed:", 8: ":scream:",
+               9: ":heart_eyes:", 10: ":wink:", 11: ":sleepy:", 12: ":sweat:"}
 
         return emoji.emojize(dic[mode], language='alias')
 
@@ -161,7 +162,8 @@ class RobotLaunchEmail:
             self.constellation = "sagittarius"
             self.constellation_jpn = "いて"
         else:
-            print("Inappropriate birthday. Set default constellation: sagittarius")
+            rospy.logerr("Inappropriate birthday."
+                         "Set default constellation: sagittarius")
 
     def get_fortune(self):
         """
@@ -175,7 +177,9 @@ class RobotLaunchEmail:
             elif rank <= 3:
                 message = str(rank) + "位！いい感じ" + self.add_emoji(1)
             elif rank == 12:
-                message = "最下位..." + self.add_emoji(5) + "ラッキーアイテムをチェックしなきゃ！！"
+                message = "最下位..."\
+                          + self.add_emoji(5)\
+                          + "ラッキーアイテムをチェックしなきゃ！！"
             else:
                 message = str(rank) + "位かぁ。そこそこかな" + self.add_emoji(0)
             return "  " + message
@@ -209,18 +213,21 @@ class RobotLaunchEmail:
                 message = "今日は研究さぼっちゃおうかな〜" + self.add_emoji(3)
             return "  " + message
 
-        url = 'https://fortune.yahoo.co.jp/12astro/'+ self.constellation
+        url = 'https://fortune.yahoo.co.jp/12astro/' + self.constellation
         if sys.version_info.major == 2:
             response = urllib2.urlopen(url)
         else:
             response = request.urlopen(url)
         soup = BeautifulSoup(response, "html.parser")
         fortune = soup.find('div', id="jumpdtl").find_all('td')
-        f_contents = soup.find('div', class_="yftn12a-md48").find_all('dd')[0].contents[0]
+        f_contents = soup.find(
+            'div', class_="yftn12a-md48").find_all('dd')[0].contents[0]
         try:
-            rank = re.sub(r"\D", "", fortune[-5].contents[0].contents[0]) + "位"
-        except:
-            rank = re.sub(r"\D", "", fortune[-5].contents[0].attrs['alt']) + "位"
+            rank = re.sub(
+                r"\D", "", fortune[-5].contents[0].contents[0]) + "位"
+        except BaseException:
+            rank = re.sub(
+                r"\D", "", fortune[-5].contents[0].attrs['alt']) + "位"
         point_overall = fortune[-4].contents[0].attrs['alt']
         point_love = fortune[-3].contents[0].attrs['alt']
         point_money = fortune[-2].contents[0].attrs['alt']
@@ -229,15 +236,18 @@ class RobotLaunchEmail:
         point_love_int = int(re.sub(r"\D", "", point_love)[2:])
         point_money_int = int(re.sub(r"\D", "", point_money)[2:])
         point_business_int = int(re.sub(r"\D", "", point_business)[2:])
-        message = "今日の星座占い："
-        message += self.constellation_jpn + "座の運勢は【" + rank + "】" + add_comment_rank(rank_int) + "\n"
+        message = "今日の星座占い：" + self.constellation_jpn\
+                  + "座の運勢は【" + rank + "】" + add_comment_rank(rank_int) + "\n"
         message += f_contents + "\n"
         message += "だって！\n"
         message += "\n"
         message += "総合運: " + point_overall + "\n"
-        message += "恋愛運: " + point_love + add_comment_love(point_love_int) + "\n"
-        message += "金運:   " + point_money + add_comment_money(point_money_int) + "\n"
-        message += "仕事運: " + point_business + add_comment_business(point_business_int) + "\n"
+        message += "恋愛運: " + point_love\
+                   + add_comment_love(point_love_int) + "\n"
+        message += "金運:   " + point_money\
+                   + add_comment_money(point_money_int) + "\n"
+        message += "仕事運: " + point_business\
+                   + add_comment_business(point_business_int) + "\n"
         response.close()
 
         return message
