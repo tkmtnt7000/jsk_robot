@@ -6,15 +6,17 @@ import datetime
 import json
 import random
 import socket
-import subprocess
 import emoji
 import sys
 import argparse
 import re
+import rospy
 if sys.version_info.major == 2:
     import urllib2
 else:
     from urllib import request
+from jsk_robot_startup.msg import Email
+from jsk_robot_startup.msg import EmailBody
 
 
 class RobotLaunchEmail:
@@ -24,6 +26,7 @@ class RobotLaunchEmail:
     def __init__(self):
         # Character code differences between python versions
         # See https://stackoverflow.com/questions/54153986/handling-encode-when-converting-from-python2-to-python3 #NOQA
+        rospy.init_node('robot_launch_email')
         if sys.version_info.major == 2:
             reload(sys)
             sys.setdefaultencoding('utf-8')
@@ -32,6 +35,7 @@ class RobotLaunchEmail:
             self.appid = f.read().split('\n')[0]
         self.constellation = "sagittarius"
         self.constellation_jpn = "いて"
+        self.pub = rospy.Publisher("email", Email, queue_size=10)
 
     def get_tips(self):
         """
@@ -240,33 +244,47 @@ class RobotLaunchEmail:
 
     def send_mail(self):
         """
-        Send mail with mailutils
+        Send mail with email node
         """
-        sender_address = "unitreepro@jsk.imi.i.u-tokyo.ac.jp"
-        receiver_address = "unitree@jsk.imi.i.u-tokyo.ac.jp"
+        msg = Email()
+
+        greeting = EmailBody()
+        greeting.type = 'text'
+        greeting.message = "おはよう。"
         current_time = datetime.datetime.now()
-        mail_title = "{} が起動しました".format(socket.gethostname())
-        message = ""
-        message += "おはよう。"
-        message += "{}時{}分です。\\n".format(
+        greeting.message += "{}時{}分です。\n".format(
             current_time.hour, current_time.minute)
-        message += "{} \\n".format(self.get_weather_forecast(lang="ja"))
-        message += "\\n"
+        greeting.message += "{} \n".format(
+            self.get_weather_forecast(lang="ja"))
 
-        contents_title, contents, detail_url = self.get_tips()
-        message += "今日の豆知識 \\n"
-        message += "{}: {} \\n".format(contents_title, contents)
-        message += "詳細: {} \\n".format(detail_url)
-        message += "\\n"
+        content_tips = EmailBody()
+        content_tips.type = 'text'
+        tips_title, tips, detail_url = self.get_tips()
+        content_tips.message = "今日の豆知識 \n"
+        content_tips.message += "{}: {} \n".format(tips_title, tips)
+        content_tips.message += "詳細: {} \n".format(detail_url)
 
-        message += self.get_fortune()
-        message += "\\n"
+        content_fortune = EmailBody()
+        content_fortune.type = 'text'
+        content_fortune.message = self.get_fortune()
 
-        # echo -e option is necessary in raspberry pi
-        cmd = "echo -e '{}'".format(message)
-        cmd += " | /usr/bin/mail -s '{}' -r {} {}".format(
-            mail_title, sender_address, receiver_address)
-        exit_code = subprocess.call(cmd, shell=True)
+        change_line = EmailBody()
+        change_line.type = 'html'
+        change_line.message = "<br>"
+
+        msg.body = [greeting,
+                    change_line,
+                    content_tips,
+                    change_line,
+                    content_fortune]
+        msg.subject = "{} が起動しました".format(socket.gethostname())
+        msg.sender_address = "unitreepro@jsk.imi.i.u-tokyo.ac.jp"
+        msg.receiver_address = "unitree@jsk.imi.i.u-tokyo.ac.jp"
+
+        rospy.sleep(1)
+        rospy.loginfo("Send mail")
+        self.pub.publish(msg)
+
 
 if __name__ == '__main__':
     RobotLaunchEmail = RobotLaunchEmail()
