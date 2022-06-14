@@ -38,25 +38,58 @@ done
 [ ${UPDATE_SOURCE_ROOT} -eq 0 ] || vcs import ${SOURCE_ROOT}/src < repos/unitree.repos
 
 # run on docker
-docker run -it --rm \
-  -u $(id -u $USER) \
-  -e INSTALL_ROOT=${INSTALL_ROOT} \
-  -v ${HOST_INSTALL_ROOT}/ros1_dependencies:/opt/jsk/${INSTALL_ROOT}/ros1_dependencies:ro \
-  -v ${HOST_INSTALL_ROOT}/Python:/opt/jsk/${INSTALL_ROOT}/Python:ro \
-  -v ${HOST_INSTALL_ROOT}/ros1_inst:/opt/jsk/${INSTALL_ROOT}/ros1_inst:ro \
-  -v ${HOST_INSTALL_ROOT}/ros1_dependencies_setup.bash:/opt/jsk/${INSTALL_ROOT}/ros1_dependencies_setup.bash:ro \
-  -v ${HOST_INSTALL_ROOT}/system_setup.bash:/opt/jsk/${INSTALL_ROOT}/system_setup.bash:ro \
-  -v ${PWD}/${SOURCE_ROOT}:/opt/jsk/User:rw \
-  -v ${PWD}/rosinstall_generator_unreleased.py:/home/user/rosinstall_generator_unreleased.py:ro \
-  ros1-unitree:${TARGET_MACHINE} \
-  bash -c "\
-    source /opt/jsk/System/system_setup.bash && \
-    env && \
-    set -xeuf -o pipefail && \
-    cd /opt/jsk/User && \
-    [ ${UPDATE_SOURCE_ROOT} -eq 0 ] || ROS_PACKAGE_PATH=src:\${ROS_PACKAGE_PATH} /home/user/rosinstall_generator_unreleased.py jsk_${TARGET_ROBOT}_startup ${TARGET_ROBOT}eus --rosdistro melodic --exclude RPP --exclude mongodb_store | tee user.repos && \
-    [ ${UPDATE_SOURCE_ROOT} -eq 0 -o -z \"\$(cat user.repos)\" ] || PYTHONPATH= vcs import src < user.repos && \
-    catkin build jsk_${TARGET_ROBOT}_startup ${TARGET_ROBOT}eus -s -vi \
-        --cmake-args -DCATKIN_ENABLE_TESTING=FALSE \
-    " 2>&1 | tee ${TARGET_MACHINE}_build_user.log
+case ${OSTYPE} in
+    linux*)
+        docker run -it --rm \
+          -u $(id -u $USER) \
+          -e INSTALL_ROOT=${INSTALL_ROOT} \
+          -v ${HOST_INSTALL_ROOT}/ros1_dependencies:/opt/jsk/${INSTALL_ROOT}/ros1_dependencies:ro \
+          -v ${HOST_INSTALL_ROOT}/Python:/opt/jsk/${INSTALL_ROOT}/Python:ro \
+          -v ${HOST_INSTALL_ROOT}/ros1_inst:/opt/jsk/${INSTALL_ROOT}/ros1_inst:ro \
+          -v ${HOST_INSTALL_ROOT}/ros1_dependencies_setup.bash:/opt/jsk/${INSTALL_ROOT}/ros1_dependencies_setup.bash:ro \
+          -v ${HOST_INSTALL_ROOT}/system_setup.bash:/opt/jsk/${INSTALL_ROOT}/system_setup.bash:ro \
+          -v ${PWD}/${SOURCE_ROOT}:/opt/jsk/User:rw \
+          -v ${PWD}/rosinstall_generator_unreleased.py:/home/user/rosinstall_generator_unreleased.py:ro \
+          ros1-unitree:${TARGET_MACHINE} \
+          bash -c "\
+            source /opt/jsk/System/system_setup.bash && \
+            env && \
+            set -xeuf -o pipefail && \
+            cd /opt/jsk/User && \
+            [ ${UPDATE_SOURCE_ROOT} -eq 0 ] || ROS_PACKAGE_PATH=src:\${ROS_PACKAGE_PATH} /home/user/rosinstall_generator_unreleased.py jsk_${TARGET_ROBOT}_startup ${TARGET_ROBOT}eus --rosdistro melodic --exclude RPP --exclude mongodb_store | tee user.repos && \
+            [ ${UPDATE_SOURCE_ROOT} -eq 0 -o -z \"\$(cat user.repos)\" ] || PYTHONPATH= vcs import src < user.repos && \
+            catkin build jsk_${TARGET_ROBOT}_startup ${TARGET_ROBOT}eus -s -vi \
+                --cmake-args -DCATKIN_ENABLE_TESTING=FALSE \
+            " 2>&1 | tee ${TARGET_MACHINE}_build_user.log
+        ;;
+    darwin*)
+        # future module's Queue is odd.
+        # >>> from Queue import Queue
+        # ImportError: cannot import name Queue
+        # >>> import Queue
+        # >>> Queue.__file__
+        # '/opt/jsk/System/ros1_dependencies/lib/python2.7/site-packages/future-0.15.2-py2.7.egg/Queue/__init__.pyc'
+        # So, set PYTHONPATH manually for catkin build.
+        docker run -it --rm \
+          -e INSTALL_ROOT=${INSTALL_ROOT} \
+          -v ${HOST_INSTALL_ROOT}/ros1_dependencies:/opt/jsk/${INSTALL_ROOT}/ros1_dependencies:ro \
+          -v ${HOST_INSTALL_ROOT}/Python:/opt/jsk/${INSTALL_ROOT}/Python:ro \
+          -v ${HOST_INSTALL_ROOT}/ros1_inst:/opt/jsk/${INSTALL_ROOT}/ros1_inst:ro \
+          -v ${HOST_INSTALL_ROOT}/ros1_dependencies_setup.bash:/opt/jsk/${INSTALL_ROOT}/ros1_dependencies_setup.bash:ro \
+          -v ${HOST_INSTALL_ROOT}/system_setup.bash:/opt/jsk/${INSTALL_ROOT}/system_setup.bash:ro \
+          -v ${PWD}/${SOURCE_ROOT}:/opt/jsk/User:rw \
+          -v ${PWD}/rosinstall_generator_unreleased.py:/home/user/rosinstall_generator_unreleased.py:ro \
+          ros1-unitree:${TARGET_MACHINE} \
+          bash -c "\
+            source /opt/jsk/System/system_setup.bash && \
+            env && \
+            set -xeuf -o pipefail && \
+            cd /opt/jsk/User && \
+            [ ${UPDATE_SOURCE_ROOT} -eq 0 ] || ROS_PACKAGE_PATH=src:\${ROS_PACKAGE_PATH} /home/user/rosinstall_generator_unreleased.py jsk_${TARGET_ROBOT}_startup ${TARGET_ROBOT}eus --rosdistro melodic --exclude RPP --exclude mongodb_store | tee user.repos && \
+            [ ${UPDATE_SOURCE_ROOT} -eq 0 -o -z \"\$(cat user.repos)\" ] || PYTHONPATH= vcs import src < user.repos && \
+            PYTHONPATH=/opt/ros/melodic/lib/python2.7/dist-packages:/opt/jsk/System/Python/lib/python2.7/site-packages catkin build jsk_${TARGET_ROBOT}_startup ${TARGET_ROBOT}eus -s -vi \
+                --cmake-args -DCATKIN_ENABLE_TESTING=FALSE \
+            " 2>&1 | tee ${TARGET_MACHINE}_build_user.log
+        ;;
+esac
 cp ${PWD}/startup_scripts/user_setup.bash ${SOURCE_ROOT}/
