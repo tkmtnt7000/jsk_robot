@@ -32,7 +32,15 @@ mkdir -p ${HOST_INSTALL_ROOT}/ros1_inst
 if [ ${UPDATE_SOURCE_ROOT} -eq 1 ]; then
     vcs import --force --retry 3 --shallow ${SOURCE_ROOT}/src < repos/roseus_no_window.repos
     for dir in euslisp jskeus; do ls ${SOURCE_ROOT}/src/$dir/patches/; rsync -avz ${SOURCE_ROOT}/src/$dir/patches/ ${SOURCE_ROOT}/src/$dir; done
-    sed -i s@:{version}@0.0.0@ ${SOURCE_ROOT}/src/euslisp/package.xml ${SOURCE_ROOT}/src/jskeus/package.xml
+    case ${OSTYPE} in
+        linux*)
+            sed -i s@:{version}@0.0.0@ ${SOURCE_ROOT}/src/euslisp/package.xml ${SOURCE_ROOT}/src/jskeus/package.xml
+            ;;
+        darwin*)
+            # Mac's sed command is different from linux's.
+            sed -i .bak s@:{version}@0.0.0@ ${SOURCE_ROOT}/src/euslisp/package.xml ${SOURCE_ROOT}/src/jskeus/package.xml
+            ;;
+    esac
 fi
 wget https://patch-diff.githubusercontent.com/raw/PR2/pr2_mechanism/pull/346.diff -O ${SOURCE_ROOT}/pr2_mechanism-346.diff
 
