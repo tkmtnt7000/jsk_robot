@@ -54,7 +54,7 @@ function copy_data () {
     fi
 
     # Check if robot is reachable
-    reachability=$(ping -c4 ${hostname} 2>/dev/null | awk '/---/,0' | grep -Po '[0-9]{1,3}(?=% packet loss)')
+    reachability=$(ping -c4 ${hostname} 2>/dev/null | awk '/---/,0' | perl -nle'print $& while m{[0-9]{1,3}(?=% packet loss)}g')
     if [ -z "$reachability" ] || [ "$reachability" == 100 ]; then
         echo "ERROR: ${hostname} unreachable" 1>&2
         exit 2
@@ -92,9 +92,9 @@ function copy_data () {
     sshpass -p $PASS ssh -t ${user}@${hostname} "test -e /opt/jsk" || \
         sshpass -p $PASS ssh -t ${user}@${hostname} "sudo mkdir -p /opt/jsk && sudo chown -R \$(id -u \${USER}):\$(id -g \${USER}) /opt/jsk && ls -al /opt/jsk"
 
-    rsync --rsh="/usr/bin/sshpass -p $PASS ssh -o StrictHostKeyChecking=no -l ${user}" -avz --delete --delete-excluded --exclude "*.pyc" --exclude "^logs/" ${TARGET_MACHINE}_${TARGET_DIRECTORY}/ ${hostname}:/opt/jsk/${TARGET_DIRECTORY}
+    rsync --rsh="sshpass -p $PASS ssh -o StrictHostKeyChecking=no -l ${user}" -avz --delete --delete-excluded --exclude "*.pyc" --exclude "^logs/" ${TARGET_MACHINE}_${TARGET_DIRECTORY}/ ${hostname}:/opt/jsk/${TARGET_DIRECTORY}
     if [[ "${TARGET_DIRECTORY}" == "User" ]]; then
-        rsync --rsh="/usr/bin/sshpass -p $PASS ssh -o StrictHostKeyChecking=no -l ${user}" -avz --delete --delete-excluded ../jsk_unitree_startup/autostart/ ${hostname}:Unitree/autostart/jsk_startup
+        rsync --rsh="sshpass -p $PASS ssh -o StrictHostKeyChecking=no -l ${user}" -avz --delete --delete-excluded ../jsk_unitree_startup/autostart/ ${hostname}:Unitree/autostart/jsk_startup
         # https://stackoverflow.com/questions/23395363/make-patch-return-0-when-skipping-an-already-applied-patch
 
         # On Air, we need to start unitree_bringup at 129.168.123.13
