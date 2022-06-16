@@ -21,7 +21,7 @@ $ sudo apt install -y qemu-user-static
 
 For Mac Users, you need to install `python-vcstool`
 ```
-$ brew install python-vcstool
+$ pip install vcstool
 ```
 
 ### Build ROS System on Docker  (Run only the fist time per host computer)
