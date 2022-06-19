@@ -59,7 +59,7 @@ case ${OSTYPE} in
           bash -c "\
             set -xeuf -o pipefail && \
             pip install -U --user pip && \
-                export PYTHONPATH=\"/opt/jsk/System/ros1_dependencies/lib/python2.7/site-packages\" && \
+                export PYTHONPATH=\"/opt/ros/melodic/lib/python2.7/dist-packages:/opt/jsk/System/Python/lib/python2.7/site-packages\" && \
                 export PKG_CONFIG_PATH=\"/opt/jsk/${INSTALL_ROOT}/ros1_dependencies/lib/pkgconfig\" && \
                 ~/.local/bin/pip install --prefix=/opt/jsk/${INSTALL_ROOT}/Python -r /home/user/ros1_dependencies_sources/go1_requirements.txt \
             && \
