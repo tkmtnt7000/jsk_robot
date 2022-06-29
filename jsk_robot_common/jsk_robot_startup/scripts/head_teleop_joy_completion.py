@@ -43,15 +43,18 @@ class JoyTopicCompletion:
             # See https://github.com/k-okada/jsk_robot/pull/22
             x = msg.axes[self.axis_linear_x]
             y = msg.axes[self.axis_linear_y]
-            v = math.exp(math.sqrt(x*x + y*y)) - 1
+            # v = math.exp(math.sqrt(x*x + y*y)) - 1
+            # 1.4 m/s is nearly equal to 5.0km/h
+            v = math.sqrt(x*x + y*y) * math.sqrt(x*x + y*y)
             r = math.atan2(y, x)
 
             yy = 0
             xx = v * math.cos(r)
 
-            if v > 0:
+            if v > 0 and v <= 1.5:
                 self.last_publish_time = rospy.Time.now()
                 rr = (self.sigmoid(r) - 0.5) * 2 * math.pi
+                v = self.acceleration * (rospy.Time.now() - self.last_publish_time) + v
             else:
                 rr = 0
 
@@ -81,6 +84,7 @@ class JoyTopicCompletion:
         self.axis_linear_x = int(rospy.get_param('~axis_linear', {'x': 1})['x'])
         self.axis_linear_y = int(rospy.get_param('~axis_linear', {'y': 2})['y'])
         self.axis_angular = int(rospy.get_param('~axis_angular', {'yaw': 0})['yaw'])
+        self.acceleration = rospy.get_param('~acceleration', 1)
 
         self.last_publish_time = rospy.Time.now()
 
