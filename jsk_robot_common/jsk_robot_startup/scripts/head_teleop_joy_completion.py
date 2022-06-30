@@ -47,16 +47,41 @@ class JoyTopicCompletion:
             # 1.4 m/s is nearly equal to 5.0km/h
             v = math.sqrt(x*x + y*y) * math.sqrt(x*x + y*y)
             r = math.atan2(y, x)
+            rospy.logerr("original v: {}".format(v))
+
+            # if self.old_v > v:
+            #     v = self.old_v
+            # else:
+            #     self.old_v = 0
+            if v > 0:
+                rr = (self.sigmoid(r) - 0.5) * 2 * math.pi
+            else:
+                rr = 0
+
+            if self.old_v < 1.5:
+                if v > 0.5:
+                    # vdiff = self.old_acceleration
+                    # vdiff = self.old_acceleration * (rospy.Time.now() - self.last_publish_time).to_sec()
+                    # v = vdiff + v
+                    # self.old_acceleration = vdiff / 0.1
+                    v = self.old_v + self.acceleration * 0.001
+                    self.old_v = v
+                else:
+                    self.old_v = 0
+                    # self.old_acceleration = 0
+                    # vdiff = 0
+            else:
+                if v > 0.8:
+                    v = self.old_v
+                else:
+                    self.old_v = 0
+                    pass
+
+            rospy.logerr("self.old_v: {}".format(self.old_v))
+            rospy.logerr("pub v: {}".format(v))
 
             yy = 0
             xx = v * math.cos(r)
-
-            if v > 0 and v <= 1.5:
-                self.last_publish_time = rospy.Time.now()
-                rr = (self.sigmoid(r) - 0.5) * 2 * math.pi
-                v = self.acceleration * (rospy.Time.now() - self.last_publish_time) + v
-            else:
-                rr = 0
 
             rospy.loginfo("raw: x={:5.2f}, y={:5.2f}, v={:5.2f}, r={:5.2f} -> cmd: x={:5.2f}, y={:5.2f}, r={:5.2f}".format(x, y, v, r, xx, yy, rr))
 
@@ -64,6 +89,7 @@ class JoyTopicCompletion:
             msg.axes[self.axis_linear_x] = xx
             msg.axes[self.axis_linear_y] = yy
             msg.axes[self.axis_angular] = rr
+            self.last_publish_time = rospy.Time.now()
 
         self.pub.publish(msg)
 
@@ -75,6 +101,7 @@ class JoyTopicCompletion:
         while not rospy.is_shutdown():
             rate.sleep()
             if rospy.Time.now() - self.last_publish_time > rospy.Duration(3.0):
+                self.old_v = 0
                 self.pub.publish(msg)
 
     def __init__(self):
@@ -84,7 +111,9 @@ class JoyTopicCompletion:
         self.axis_linear_x = int(rospy.get_param('~axis_linear', {'x': 1})['x'])
         self.axis_linear_y = int(rospy.get_param('~axis_linear', {'y': 2})['y'])
         self.axis_angular = int(rospy.get_param('~axis_angular', {'yaw': 0})['yaw'])
-        self.acceleration = rospy.get_param('~acceleration', 1)
+        self.acceleration = rospy.get_param('~acceleration', 3)
+        self.old_acceleration = 1
+        self.old_v = 0
 
         self.last_publish_time = rospy.Time.now()
 
