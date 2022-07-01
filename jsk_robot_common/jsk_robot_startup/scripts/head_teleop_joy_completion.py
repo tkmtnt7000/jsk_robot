@@ -53,29 +53,31 @@ class JoyTopicCompletion:
             #     v = self.old_v
             # else:
             #     self.old_v = 0
-            if v > 0:
-                rr = (self.sigmoid(r) - 0.5) * 2 * math.pi
-            else:
-                rr = 0
 
-            if self.old_v < 1.5:
+            if self.old_v < 1.1:
                 if v > 0.5:
                     # vdiff = self.old_acceleration
                     # vdiff = self.old_acceleration * (rospy.Time.now() - self.last_publish_time).to_sec()
                     # v = vdiff + v
                     # self.old_acceleration = vdiff / 0.1
-                    v = self.old_v + self.acceleration * 0.001
+                    v = 0.3 + self.old_v + self.acceleration * 0.01
                     self.old_v = v
                 else:
                     self.old_v = 0
                     # self.old_acceleration = 0
                     # vdiff = 0
             else:
-                if v > 0.8:
+                if v > 0.7:
                     v = self.old_v
                 else:
                     self.old_v = 0
                     pass
+            if v > 0 and v < 0.5:
+                rr = (self.sigmoid(r) - 0.5) * 2 * math.pi
+            elif v >= 0.5:
+                rr = r**3
+            else:
+                rr = 0
 
             rospy.logerr("self.old_v: {}".format(self.old_v))
             rospy.logerr("pub v: {}".format(v))
