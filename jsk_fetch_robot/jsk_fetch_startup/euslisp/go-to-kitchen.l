@@ -16,7 +16,9 @@
                                      (initial-light-on . nil)
                                      (success-go-to-kitchen . nil)
                                      (success-go-to-trashcan . nil)
-                                     (success-auto-dock . nil))
+                                     (success-auto-dock . nil)
+                                     (description . "")
+                                     (image . ""))
                               :hz 2.0)))
     (send result-state :name)))
 

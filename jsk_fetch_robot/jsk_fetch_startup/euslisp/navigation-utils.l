@@ -1,6 +1,7 @@
 (load "package://jsk_robot_startup/lifelog/tweet_client.l")
 (load "package://jsk_fetch_startup/euslisp/notify-app.l")
 (load "package://switchbot_ros/scripts/switchbot.l")
+(require :base64 "lib/llib/base64.l")
 (require :state-machine "package://roseus_smach/src/state-machine.l")
 (require :state-machine-ros "package://roseus_smach/src/state-machine-ros.l")
 (require :state-machine-utils "package://roseus_smach/src/state-machine-utils.l")
@@ -26,6 +27,9 @@
        "/eng2/7f/room73B2-fetch-dock2-front")
       (t nil))))
 
+(defun image_cb (msg)
+  (setq *image* msg))
+(ros::subscribe "/edgetpu_object_detector/output/image" sensor_msgs::Image #'image_cb)
 
 (defun store-params ()
   (defparameter *global-inflation-radius*
@@ -371,7 +375,8 @@ Args:
       (notify-app "object recognition"
                   (send msg :header :stamp)
                   location
-                  (format nil "~A is found" label-names)))))
+                  (format nil "~A is found" label-names))
+      (set-alist 'description "~Aがあったよ." label-names))))
 
 (defun notify-co2 (&key (location "kitchen"))
   (let* ((msg (one-shot-subscribe "/eco2" std_msgs::UInt16
@@ -400,7 +405,14 @@ Args:
                   location
                   (format nil "~A Trashcan occupancy is ~A"
                               notify-text
-                              occupancy)))))
+                              occupancy))
+      (set-alist 'description (if (> occupancy 1.0)
+                                  "ゴミ箱がいっぱいだよ．捨てに行こう．"
+                                  "ゴミ箱を見に行ったよ"))
+      (when *image*
+         ;; not to send \n ???
+        (set-alist 'image
+                   (remove #\newline (base64encode (send *image* :serialize))) args)))))
 
 (defun inspect-kitchen (&key (tweet t))
   (report-move-to-sink-front-success)
@@ -590,6 +602,7 @@ Args:
                  (store-params)
                  (inflation-loose)
                  (clear-app-notification)
+                 (set-alist 'description "Start Go to Kitchen" userdata)
                  t))
             (:report-start-go-to-kitchen
               '(lambda (userdata)
@@ -633,6 +646,9 @@ Args:
             (:inspect-trashcan
               '(lambda (userdata)
                  (inspect-trashcan :tweet (cdr (assoc 'tweet userdata)))
+                 (set-alist 'description "ゴミ箱を確認したよ" userdata)
+                 (set-alist 'image
+                   (remove #\newline (base64encode (send *image* :serialize))) userdata)
                  t))
             (:report-move-to-trashcan-front-failure
               '(lambda (userdata)
@@ -667,6 +683,8 @@ Args:
                          (cdr (assoc 'success-go-to-kitchen userdata))))
                    (restore-params)
                    (send-kitchen-mail)
-                   (and success-go-to-kitchen success-auto-dock success-battery-charging)))))
+                   (and success-go-to-kitchen success-auto-dock success-battery-charging)
+                   (set-alist 'description "End Go to Kitchen" userdata)))))
           '(:init)
-          '(t nil))))
+          '(t nil)))
+  (send *sm* :arg-keys 'description))
