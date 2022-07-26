@@ -10,11 +10,11 @@
   <arg name="debounce_period" default="50" />
   <arg name="press_interval" default="500" />
 
-  <!-- custom hardware for rosserial/joy node -->
+  custom hardware for rosserial/joy node
   <group if="$(arg launch_serial_node)" >
     <include file="$(find jsk_unitree_startup)/launch/rosserial_node.launch" >
-      <arg name="joy" value="$(arg joy_topic)" />
-      <arg name="port" value="$(arg joy_dev)" />
+      <arg name="joy_topic" value="$(arg joy_topic)" />
+      <arg name="joy_dev" value="$(arg joy_dev)" />
       <arg name="deadzone" value="$(arg deadzone)" />
       <arg name="debounce_period" value="$(arg debounce_period)" />
       <arg name="press_interval" value="$(arg press_interval)" />
