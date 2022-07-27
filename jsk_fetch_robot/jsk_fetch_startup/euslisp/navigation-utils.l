@@ -594,49 +594,59 @@ Args:
             (:report-start-go-to-kitchen
               '(lambda (userdata)
                  (report-start-go-to-kitchen)
+                 (set-alist 'description "キッチンを見に行くよ" userdata)
                  t))
             (:get-light-on
               '(lambda (userdata)
                  (let ((light-on (get-light-on)))
                    (setf (cdr (assoc 'initial-light-on userdata)) light-on)
+                   (set-alist 'description "電気がついているか確認したよ" userdata)
                    light-on)))
             (:report-light-on
               '(lambda (userdata)
                  (report-light-on)
+                 (set-alist 'description "電気がついていたよ" userdata)
                  t))
             (:room-light-on
               '(lambda (userdata)
                  (let ((control-switchbot (cdr (assoc 'control-switchbot userdata))))
                    (report-light-off)
                    (room-light-on :control-switchbot control-switchbot)
+                   (set-alist 'description "電気をつけたよ" userdata)
                    t)))
             (:move-to-sink-front
               '(lambda (userdata)
                  (let* ((n-trial (cdr (assoc 'n-kitchen-trial userdata)))
                         (success (move-to-sink-front :n-trial n-trial)))
                    (setf (cdr (assoc 'success-go-to-kitchen userdata)) success)
+                   (set-alist 'description "キッチンに向かったよ" userdata)
                    success)))
             (:inspect-kitchen
               '(lambda (userdata)
                  (inspect-kitchen :tweet (cdr (assoc 'tweet userdata)))
+                 (set-alist 'description "キッチンの様子を見たよ" userdata)
                  t))
             (:report-move-to-sink-front-failure
               '(lambda (userdata)
                  (report-move-to-sink-front-failure)
+                 (set-alist 'description "キッチンに行けなかったよ" userdata)
                  t))
             (:move-to-trashcan-front
               '(lambda (userdata)
                  (let* ((n-trial (cdr (assoc 'n-trashcan-trial userdata)))
                         (success (move-to-trashcan-front :n-trial n-trial)))
                    (setf (cdr (assoc 'success-go-to-trashcan userdata)) success)
+                   (set-alist 'description "ゴミ箱の前に向かったよ" userdata)
                    success)))
             (:inspect-trashcan
               '(lambda (userdata)
                  (inspect-trashcan :tweet (cdr (assoc 'tweet userdata)))
+                 (set-alist 'description "ゴミ箱の様子を見たよ" userdata)
                  t))
             (:report-move-to-trashcan-front-failure
               '(lambda (userdata)
                  (report-move-to-trashcan-front-failure)
+                 (set-alist 'description "ゴミ箱の前に行けなかったよ" userdata)
                  t))
             (:auto-dock
               '(lambda (userdata)
@@ -644,10 +654,12 @@ Args:
                  (let* ((n-trial (cdr (assoc 'n-dock-trial userdata)))
                         (success (auto-dock :n-trial n-trial :clear-costmap nil)))
                    (setf (cdr (assoc 'success-auto-dock userdata)) success)
+                   (set-alist 'description "帰ってきたよ" userdata)
                    success)))
             (:auto-dock-failure
               '(lambda (userdata)
                  (report-auto-dock-failure)
+                 (set-alist 'description "帰ってこれなかったよ" userdata)
                  t))
             (:room-light-off
               '(lambda (userdata)
@@ -655,7 +667,8 @@ Args:
                        (initial-light-on (cdr (assoc 'initial-light-on userdata)))
                        (control-switchbot (cdr (assoc 'control-switchbot userdata))))
                    (if (and success-auto-dock (not initial-light-on))
-                     (room-light-off :control-switchbot control-switchbot)))
+                     (room-light-off :control-switchbot control-switchbot))
+                   (set-alist 'description "電気を消したよ" userdata))
                  t))
             (:finish
               '(lambda (userdata)
@@ -667,6 +680,7 @@ Args:
                          (cdr (assoc 'success-go-to-kitchen userdata))))
                    (restore-params)
                    (send-kitchen-mail)
+                   (set-alist 'description "キッチンデモを終えるよ" userdata)
                    (and success-go-to-kitchen success-auto-dock success-battery-charging)))))
           '(:init)
           '(t nil))))
