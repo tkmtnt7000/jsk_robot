@@ -510,6 +510,8 @@ Args:
     (ros::publish "email" msg)
     ))
 
+(defun image-cb (msg)
+  (setq *image* msg))
 
 (defun go-to-kitchen (&key (tweet t) (n-dock-trial 1) (n-kitchen-trial 1)
                            (control-switchbot :api))
@@ -590,6 +592,8 @@ Args:
                  (store-params)
                  (inflation-loose)
                  (clear-app-notification)
+                 (ros::subscribe "/edgetpu_object_detector/output/image/compressed"
+                  sensor_msgs::CompressedImage #'image-cb)
                  t))
             (:report-start-go-to-kitchen
               '(lambda (userdata)
@@ -601,6 +605,8 @@ Args:
                  (let ((light-on (get-light-on)))
                    (setf (cdr (assoc 'initial-light-on userdata)) light-on)
                    (set-alist 'description "電気がついているか確認したよ" userdata)
+                   (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
+
                    light-on)))
             (:report-light-on
               '(lambda (userdata)
@@ -613,6 +619,8 @@ Args:
                    (report-light-off)
                    (room-light-on :control-switchbot control-switchbot)
                    (set-alist 'description "電気をつけたよ" userdata)
+                   (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
+
                    t)))
             (:move-to-sink-front
               '(lambda (userdata)
@@ -620,16 +628,20 @@ Args:
                         (success (move-to-sink-front :n-trial n-trial)))
                    (setf (cdr (assoc 'success-go-to-kitchen userdata)) success)
                    (set-alist 'description "キッチンに向かったよ" userdata)
+                   (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
+
                    success)))
             (:inspect-kitchen
               '(lambda (userdata)
                  (inspect-kitchen :tweet (cdr (assoc 'tweet userdata)))
                  (set-alist 'description "キッチンの様子を見たよ" userdata)
+                 (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                  t))
             (:report-move-to-sink-front-failure
               '(lambda (userdata)
                  (report-move-to-sink-front-failure)
                  (set-alist 'description "キッチンに行けなかったよ" userdata)
+                 (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                  t))
             (:move-to-trashcan-front
               '(lambda (userdata)
@@ -637,16 +649,19 @@ Args:
                         (success (move-to-trashcan-front :n-trial n-trial)))
                    (setf (cdr (assoc 'success-go-to-trashcan userdata)) success)
                    (set-alist 'description "ゴミ箱の前に向かったよ" userdata)
+                   (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    success)))
             (:inspect-trashcan
               '(lambda (userdata)
                  (inspect-trashcan :tweet (cdr (assoc 'tweet userdata)))
                  (set-alist 'description "ゴミ箱の様子を見たよ" userdata)
+                 (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                  t))
             (:report-move-to-trashcan-front-failure
               '(lambda (userdata)
                  (report-move-to-trashcan-front-failure)
                  (set-alist 'description "ゴミ箱の前に行けなかったよ" userdata)
+                 (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                  t))
             (:auto-dock
               '(lambda (userdata)
@@ -655,11 +670,13 @@ Args:
                         (success (auto-dock :n-trial n-trial :clear-costmap nil)))
                    (setf (cdr (assoc 'success-auto-dock userdata)) success)
                    (set-alist 'description "帰ってきたよ" userdata)
+                   (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    success)))
             (:auto-dock-failure
               '(lambda (userdata)
                  (report-auto-dock-failure)
                  (set-alist 'description "帰ってこれなかったよ" userdata)
+                 (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                  t))
             (:room-light-off
               '(lambda (userdata)
