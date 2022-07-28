@@ -1,6 +1,7 @@
 (load "package://jsk_robot_startup/lifelog/tweet_client.l")
 (load "package://jsk_fetch_startup/euslisp/notify-app.l")
 (load "package://switchbot_ros/scripts/switchbot.l")
+(require :base64 "lib/llib/base64.l")
 (require :state-machine "package://roseus_smach/src/state-machine.l")
 (require :state-machine-ros "package://roseus_smach/src/state-machine-ros.l")
 (require :state-machine-utils "package://roseus_smach/src/state-machine-utils.l")
@@ -599,6 +600,7 @@ Args:
               '(lambda (userdata)
                  (report-start-go-to-kitchen)
                  (set-alist 'description "キッチンを見に行くよ" userdata)
+                 (set-alist 'image "" userdata)
                  t))
             (:get-light-on
               '(lambda (userdata)
@@ -612,6 +614,7 @@ Args:
               '(lambda (userdata)
                  (report-light-on)
                  (set-alist 'description "電気がついていたよ" userdata)
+                 (set-alist 'image "" userdata)
                  t))
             (:room-light-on
               '(lambda (userdata)
@@ -684,8 +687,9 @@ Args:
                        (initial-light-on (cdr (assoc 'initial-light-on userdata)))
                        (control-switchbot (cdr (assoc 'control-switchbot userdata))))
                    (if (and success-auto-dock (not initial-light-on))
-                     (room-light-off :control-switchbot control-switchbot))
-                   (set-alist 'description "電気を消したよ" userdata))
+                     (room-light-off :control-switchbot control-switchbot)
+                     (set-alist 'description "電気を消したよ" userdata)
+                     (set-alist 'image "" userdata))
                  t))
             (:finish
               '(lambda (userdata)
