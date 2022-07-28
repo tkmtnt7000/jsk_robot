@@ -2,11 +2,8 @@
 
 import base64
 import cv2
-import datetime
-import imghdr
 import pickle
 import rospy
-import time
 
 from cv_bridge import CvBridge
 from jsk_robot_startup.msg import Email
@@ -26,8 +23,8 @@ class SmachToMail():
             "~smach/container_status", SmachContainerStatus, self._status_cb)
         self.bridge = CvBridge()
         self.smach_state_list = None  # for status list
-        self.sender_address = "tsukamoto@jsk.imi.i.u-tokyo.ac.jp"
-        self.receiver_address = "tsukamoto@jsk.imi.i.u-tokyo.ac.jp"
+        self.sender_address = rospy.get_param("~sender_address")
+        self.receiver_address = rospy.get_param("~receiver_address")
 
     def _status_cb(self, msg):
         '''
@@ -36,7 +33,6 @@ class SmachToMail():
         rospy.loginfo("Received SMACH status")
         if len(msg.active_states) == 0:
             return
-        file_path = None
         status_str = ', '.join(msg.active_states);
         local_data_str = pickle.loads(msg.local_data)
         info_str = msg.info
@@ -75,7 +71,7 @@ class SmachToMail():
             width = int(cv_image.shape[1] * scale_percent / 100)
             height = int(cv_image.shape[0] * scale_percent / 100)
             dim = (width, height)
-            cv_image = cv2.resize(cv_image, dim, interpolation = cv2.INTER_AREA)
+            cv_image = cv2.resize(cv_image, dim, interpolation=cv2.INTER_AREA)
             status_dict.update({'IMAGE': base64.b64encode(cv2.imencode('.jpg', cv_image)[1].tostring())})  # dict is complicated?
 
         if self.smach_state_list == None:
