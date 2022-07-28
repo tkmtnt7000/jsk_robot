@@ -4,6 +4,7 @@ import base64
 import cv2
 import pickle
 import rospy
+import sys
 
 from cv_bridge import CvBridge
 from jsk_robot_startup.msg import Email
@@ -34,7 +35,11 @@ class SmachToMail():
         if len(msg.active_states) == 0:
             return
         status_str = ', '.join(msg.active_states);
-        local_data_str = pickle.loads(msg.local_data)
+        if sys.version_info.major < 3:
+            local_data_str = pickle.loads(msg.local_data)
+        else:
+            local_data_str = pickle.loads(
+                msg.local_data.encode('utf-8'), encoding='utf-8')
         info_str = msg.info
         if not type(local_data_str) is dict:
             rospy.logerr("local_data_str:({}) is not dictionary".format(local_data_str))
