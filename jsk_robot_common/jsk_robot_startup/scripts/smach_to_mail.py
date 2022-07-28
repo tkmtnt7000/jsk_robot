@@ -43,27 +43,27 @@ class SmachToMail():
 
         rospy.loginfo("- status -> {}".format(status_str))
         rospy.loginfo("- info_str -> {}".format(info_str))
-        if local_data_str.has_key('DESCRIPTION'):
+        if 'DESCRIPTION' in local_data_str:
             rospy.loginfo("- description_str -> {}".format(local_data_str['DESCRIPTION']))
         else:
             rospy.logwarn("smach does not have DESCRIPTION, see https://github.com/jsk-ros-pkg/jsk_robot/tree/master/jsk_robot_common/jsk_robot_startup#smach_to_mailpy for more info")
-        if local_data_str.has_key('IMAGE') and local_data_str['IMAGE']:
+        if 'IMAGE' in local_data_str and local_data_str['IMAGE']:
             rospy.loginfo("- image_str -> {}".format(local_data_str['IMAGE'][:64]))
 
         if status_str in ["START", "INIT"]:
             self.smach_state_list = []
             # DESCRIPTION of START is MAIL SUBJECT
-            if local_data_str.has_key('DESCRIPTION'):
+            if 'DESCRIPTION' in local_data_str:
                 self.smach_state_subject = local_data_str['DESCRIPTION']
                 del local_data_str['DESCRIPTION']
             else:
                 self.smach_state_subject = None
 
         status_dict = {}
-        if local_data_str.has_key('DESCRIPTION'):
+        if 'DESCRIPTION' in local_data_str:
             status_dict.update({'DESCRIPTION': local_data_str['DESCRIPTION']})
 
-        if local_data_str.has_key('IMAGE') and local_data_str['IMAGE']:
+        if 'IMAGE' in local_data_str and local_data_str['IMAGE']:
             imgmsg = CompressedImage()
             imgmsg.deserialize(base64.b64decode(local_data_str['IMAGE']))
             cv_image = self.bridge.compressed_imgmsg_to_cv2(imgmsg, "bgr8")
@@ -74,7 +74,7 @@ class SmachToMail():
             cv_image = cv2.resize(cv_image, dim, interpolation=cv2.INTER_AREA)
             status_dict.update({'IMAGE': base64.b64encode(cv2.imencode('.jpg', cv_image)[1].tostring())})  # dict is complicated?
 
-        if self.smach_state_list == None:
+        if self.smach_state_list is None:
             rospy.logwarn("received {}, but we did not find START node".format(status_dict))
         else:
             self.smach_state_list.append(status_dict)
@@ -95,13 +95,13 @@ class SmachToMail():
         changeline.type = 'html'
         changeline.message = "<br>"
         for x in self.smach_state_list:
-            if x.has_key('DESCRIPTION'):
+            if 'DESCRIPTION' in x:
                 description = EmailBody()
                 description.type = 'text'
                 description.message = x['DESCRIPTION']
                 email_msg.body.append(description)
                 email_msg.body.append(changeline)
-            if x.has_key('IMAGE') and x['IMAGE']:
+            if 'IMAGE' in x and x['IMAGE']:
                 image = EmailBody()
                 image.type = 'img'
                 image.img_size = 100
