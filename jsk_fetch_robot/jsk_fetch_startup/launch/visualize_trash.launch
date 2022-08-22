@@ -1,0 +1,15 @@
+<launch>
+  <arg name="DEFAULT_NAMESPACE" default="trashbin_occupancy_detector"/>
+  
+  <!-- for visualizing occupancy rate in rviz -->
+  <node name="occupancy0" pkg="topic_tools" type="transform"
+        args="$(arg DEFAULT_NAMESPACE)/container/occupancies /container0/occupancy std_msgs/Float32 '0.0 if len(m.boxes) == 0 else m.boxes[0].value'" if="$(arg gui)">
+  </node>
+  <node name="occupancy1" pkg="topic_tools" type="transform"
+        args="$(arg DEFAULT_NAMESPACE)/container/occupancies /container1/occupancy std_msgs/Float32 '0.0 if len(m.boxes) != 2 else m.boxes[1].value'" if="$(arg gui)">
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find jsk_pcl_ros)/sample/rviz/container_occupancy_detector.rviz"
+        if="$(arg gui)" />
+</launch>
