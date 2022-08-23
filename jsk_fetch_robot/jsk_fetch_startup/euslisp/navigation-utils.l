@@ -17,6 +17,11 @@
 (defparameter *tfl* (instance ros::transform-listener :init))
 
 (ros::advertise "/photo_taken" sensor_msgs::Image 1)
+(defun image-cb (msg)
+  (setq *image* msg))
+(ros::subscribe "/edgetpu_object_detector/output/image/compressed"
+                sensor_msgs::CompressedImage #'image-cb)
+
 
 (let ((robot-name (ros::get-param "/robot/name")))
   (defparameter *dock-spot*
@@ -573,9 +578,6 @@ Args:
     (send *ri* :go-pos-unsafe 0 0 -80) ;; face the front against the trash can
     success-move-to-trashcan-front))
 
-(defun image-cb (msg)
-  (setq *image* msg))
-
 (defun go-to-kitchen (&key (tweet t) (n-dock-trial 1) (n-kitchen-trial 1)
                            (control-switchbot :api))
   ;; go to kitchen
@@ -624,7 +626,7 @@ Args:
 
 (defun report-start-go-to-kitchen-state (args)
   (let ()
-    (report-start-go-to-kitchen-state)
+    (report-start-go-to-kitchen)
     (set-alist 'description "キッチンを見に行くよ" args)
     (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
     t))
@@ -641,7 +643,7 @@ Args:
 (defun report-light-on-state (args)
   "report-light-on-state"
   (let ()
-    (report-light-on-state)
+    (report-light-on)
     (set-alist 'description "電気がついていたよ" args)
     (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
     t))
@@ -659,7 +661,7 @@ Args:
   (let* ((n-trial (cdr (assoc 'n-kitchen-trial args)))
          (success (move-to-sink-front :n-trial n-trial)))
     (setf (cdr (assoc 'success-go-to-kitchen args)) success)
-    (set-alist 'description "キッチンに向かったよ" argw)
+    (set-alist 'description "キッチンに向かったよ" args)
     (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
     success))
 
@@ -732,8 +734,6 @@ Args:
                  (store-params)
                  (inflation-loose)
                  (clear-app-notification)
-                 (ros::subscribe "/edgetpu_object_detector/output/image/compressed"
-                                 sensor_msgs::CompressedImage #'image-cb)
                  t))
             (:report-start-go-to-kitchen 'report-start-go-to-kitchen-state)
             (:get-light-on 'get-light-on-state)
