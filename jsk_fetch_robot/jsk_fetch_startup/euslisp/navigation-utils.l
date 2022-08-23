@@ -622,6 +622,54 @@ Args:
     (setq success-battery-charging (equal (get-battery-charging-state) :charging))
     (and success-go-to-kitchen success-auto-dock success-battery-charging)))
 
+(defun report-start-go-to-kitchen-state (args)
+  (let ()
+    (report-start-go-to-kitchen-state)
+    (set-alist 'description "キッチンを見に行くよ" args)
+    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
+    t))
+
+
+(defun get-light-on-state (args)
+  "get-light-on-state"
+  (let ((light-on (get-light-on)))
+    (set-alist 'initial-light-on light-on args)
+    (set-alist 'description "電気がついているか確認したよ" args)
+    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
+    light-on))
+
+(defun report-light-on-state (args)
+  "report-light-on-state"
+  (let ()
+    (report-light-on-state)
+    (set-alist 'description "電気がついていたよ" args)
+    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
+    t))
+
+(defun room-light-on-state (args)
+  "room-light-on-state"
+  (let ((control-switchbot (cdr (assoc 'control-switchbot args))))
+    (report-light-off)
+    (room-light-on :control-switchbot control-switchbot)
+    (set-alist 'description "電気をつけたよ" args)
+    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
+    t))
+
+(defun move-to-sink-front-status (args)
+  (let* ((n-trial (cdr (assoc 'n-kitchen-trial args)))
+         (success (move-to-sink-front :n-trial n-trial)))
+    (setf (cdr (assoc 'success-go-to-kitchen args)) success)
+    (set-alist 'description "キッチンに向かったよ" argw)
+    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
+    success))
+
+(defun inspect-kitchen-state (args)
+  "inspect-kitchen"
+  (let ()
+    (inspect-kitchen :tweet (cdr (assoc 'tweet args)))
+    (set-alist 'description "キッチンの様子を見たよ" args)
+    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) args)
+    t))
 
 (defun go-to-kitchen-state-machine ()
   (setq *sm*
@@ -687,33 +735,10 @@ Args:
                  (ros::subscribe "/edgetpu_object_detector/output/image/compressed"
                                  sensor_msgs::CompressedImage #'image-cb)
                  t))
-            (:report-start-go-to-kitchen
-              '(lambda (userdata)
-                 (report-start-go-to-kitchen)
-                 (set-alist 'description "キッチンを見に行くよ" userdata)
-                 (set-alist 'image "" userdata)
-                 t))
-            (:get-light-on
-              '(lambda (userdata)
-                 (let ((light-on (get-light-on)))
-                   (setf (cdr (assoc 'initial-light-on userdata)) light-on)
-                   (set-alist 'description "電気がついているか確認したよ" userdata)
-                   (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
-                   light-on)))
-            (:report-light-on
-              '(lambda (userdata)
-                 (report-light-on)
-                 (set-alist 'description "電気がついていたよ" userdata)
-                 (set-alist 'image "" userdata)
-                 t))
-            (:room-light-on
-              '(lambda (userdata)
-                 (let ((control-switchbot (cdr (assoc 'control-switchbot userdata))))
-                   (report-light-off)
-                   (room-light-on :control-switchbot control-switchbot)
-                   (set-alist 'description "電気をつけたよ" userdata)
-                   (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
-                   t)))
+            (:report-start-go-to-kitchen 'report-start-go-to-kitchen-state)
+            (:get-light-on 'get-light-on-state)
+            (:report-light-on 'report-light-on-state)
+            (:room-light-on 'room-light-on-state)
             (:move-to-dock-front
              '(lambda (userdata)
                  (let* ((n-trial (cdr (assoc 'n-dock-front-trial userdata)))
@@ -834,20 +859,8 @@ Args:
                (set-alist 'description "ドアの前に移動できなかったよ" userdata)
                (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                t))
-            (:move-to-sink-front
-             '(lambda (userdata)
-               (let* ((n-trial (cdr (assoc 'n-kitchen-trial userdata)))
-                      (success (move-to-sink-front :n-trial n-trial)))
-                 (setf (cdr (assoc 'success-go-to-kitchen userdata)) success)
-                 (set-alist 'description "キッチンに向かったよ" userdata)
-                 (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
-                 success)))
-            (:inspect-kitchen
-             '(lambda (userdata)
-               (inspect-kitchen :tweet (cdr (assoc 'tweet userdata)))
-               (set-alist 'description "キッチンの様子を見たよ" userdata)
-               (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
-               t))
+            (:move-to-sink-front 'move-to-sink-front-status)
+            (:inspect-kitchen 'inspect-kitchen-state)
             (:report-move-to-sink-front-failure
              '(lambda (userdata)
                (report-move-to-sink-front-failure)
