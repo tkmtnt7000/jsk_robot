@@ -445,7 +445,8 @@ Args:
                   location
                   (format nil "~A Trashcan occupancy is ~A"
                               notify-text
-                              occupancy)))))
+                              occupancy))
+      occupancy)))
 
 (defun inspect-kitchen (&key (tweet t))
   (report-move-to-sink-front-success)
@@ -945,10 +946,15 @@ Args:
                  success)))
             (:inspect-trashcan
              '(lambda (userdata)
-               (inspect-trashcan :tweet (cdr (assoc 'tweet userdata)))
-               (set-alist 'description "ゴミ箱の様子を確認したよ" userdata)
-               (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
-               t))
+               (let ((occupancy (notify-trashcan-occupancy :location "trash can"))
+                     (notify-text (if (> occupancy 1.0)
+                                      "ゴミ箱がいっぱいだったよ。ゴミ捨てに行こう"
+                                      "ゴミ箱はいっぱいじゃなかったよ")))
+                 (inspect-trashcan :tweet (cdr (assoc 'tweet userdata)))
+                 (set-alist 'description
+                            (format nil "ゴミ箱の様子を確認したよ。~A" notify-text) userdata)
+                 (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
+                 t)))
             (:report-move-to-trashcan-front-failure
              '(lambda (userdata)
                (report-move-to-trashcan-front-failure)
