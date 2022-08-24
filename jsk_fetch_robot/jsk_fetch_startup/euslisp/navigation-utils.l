@@ -975,9 +975,10 @@ Args:
                      (initial-light-on (cdr (assoc 'initial-light-on userdata)))
                      (control-switchbot (cdr (assoc 'control-switchbot userdata))))
                  (if (and success-auto-dock (not initial-light-on))
-                     (room-light-off :control-switchbot control-switchbot))
-                 (set-alist 'description "電気を消したよ" userdata)
-                 (set-alist 'image "" userdata))
+                     (progn
+                       (room-light-off :control-switchbot control-switchbot)
+                       (set-alist 'description "電気を消したよ" userdata)
+                       (set-alist 'image "" userdata))))
                t))
             (:finish
              '(lambda (userdata)
