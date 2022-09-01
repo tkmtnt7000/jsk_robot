@@ -247,7 +247,6 @@ rfcomm
 
 Add following codes to `/etc/postfix/main.cf`
 ```
-#Gmail Settings
 relayhost = smtp.gmail.com:587
 smtp_sasl_auth_enable = yes
 smtp_sasl_password_maps = hash:/etc/postfix/gmail_passwd
