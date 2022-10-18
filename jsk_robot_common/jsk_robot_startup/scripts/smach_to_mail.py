@@ -58,7 +58,8 @@ class SmachToMail():
                         self.smach_state_subject[key], self.smach_state_list[key])
                     self._send_twitter(
                         self.smach_state_subject[key], self.smach_state_list[key])
-                    self.smach_state_subject[key] = None
+                    del self.smach_state_subject[key]
+                    del self.smach_state_list[key]
                     rospy.logwarn(
                         "SmachToMail timer publishes stop signal. Send Notification.")
 
@@ -150,7 +151,7 @@ class SmachToMail():
                                   "({})".format(x['INFO']) if x['INFO'] else ''))
                 self._send_mail(self.smach_state_subject[caller_id], self.smach_state_list[caller_id])
                 self._send_twitter(self.smach_state_subject[caller_id], self.smach_state_list[caller_id])
-                self.smach_state_list[caller_id] = None
+                del self.smach_state_list[caller_id]
 
     def _send_mail(self, subject, state_list):
         email_msg = Email()
