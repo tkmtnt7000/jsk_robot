@@ -37,7 +37,7 @@ def query_latest_smach():
         rospy.loginfo("Loading last smach execution...")
         last_msg, _ = msg_store.query(
             SmachContainerStatus._type,
-            {"info": "START"},
+            {"active_states": "INIT"},
             single=True,
             sort_query=[("_meta.inserted_at", pymongo.DESCENDING)]
         )
@@ -53,8 +53,11 @@ def query_latest_smach():
             else:
                 local_data_str = pickle.loads(
                     msg.local_data.encode('utf-8'), encoding='utf-8')
-            print("{} @{}".format(local_data_str['DESCRIPTION'],
-                                  datetime.fromtimestamp(msg.header.stamp.to_sec(), JST)))
+            if 'DESCRIPTION' in local_data_str and local_data_str['DESCRIPTION']:
+                print("{} @{}".format(local_data_str['DESCRIPTION'],
+                                      datetime.fromtimestamp(msg.header.stamp.to_sec(), JST)))
+            else:
+                rospy.logwarn("smach has no DESCRIPTION")
             imgmsg = None
             if 'IMAGE' in local_data_str and local_data_str['IMAGE']:
                 imgmsg = CompressedImage()
@@ -84,7 +87,8 @@ def query_images(now  = datetime.now(JST)-timedelta(hours=0),
 if __name__ == '__main__':
     rospy.init_node('sample_robot_database')
     db_name = 'jsk_robot_lifelog'
-    col_name = 'basil' # pr1012, fetch17 etc..
+    # col_name = 'basil' # pr1012, fetch17 etc..
+    col_name = 'pr1040' # pr1012, fetch17 etc..
     msg_store = MessageStoreProxy(database=db_name, collection=col_name)
 
     print("> sample program for robot database")
@@ -101,8 +105,9 @@ if __name__ == '__main__':
         print("unknown inputs...")
 
     # show data..
-    for msg in msgs:
+    for i, msg in enumerate(msgs):
         print(" @{}".format(datetime.fromtimestamp(msg.header.stamp.to_sec(), JST)))
         cv_image = bridge.compressed_imgmsg_to_cv2(msg, "bgr8")
-        cv2.imshow('image', cv_image)
-        cv2.waitKey(5)
+        # cv2.imshow('hoge', cv_image)
+        cv2.imshow('image{}'.format(i), cv_image)
+        cv2.waitKey(0)
