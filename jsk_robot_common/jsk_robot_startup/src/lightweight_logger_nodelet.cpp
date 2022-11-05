@@ -49,8 +49,23 @@ namespace jsk_robot_startup
       jsk_topic_tools::StealthRelay::onInit();
 
       // settings for database
-      nh_->param<std::string>("/robot/database", db_name_, "jsk_robot_lifelog");
-      nh_->param<std::string>("/robot/name", col_name_, std::string());
+      if (nh_->hasParam("~database"))
+      {
+        nh_->param<std::string>("~database", db_name_, "jsk_robot_lifelog");
+      }
+      else
+      {
+        nh_->param<std::string>("/robot/database", db_name_, "jsk_robot_lifelog");
+      }
+      if (nh_->hasParam("~collection"))
+      {
+        nh_->param<std::string>("~collection", col_name_, std::string());
+      }
+      else
+      {
+        nh_->param<std::string>("/robot/name", col_name_, std::string());
+      }
+
       if (col_name_.empty())
       {
         NODELET_FATAL_STREAM("Please specify param 'robot/name' (e.g. pr1012, olive)");
