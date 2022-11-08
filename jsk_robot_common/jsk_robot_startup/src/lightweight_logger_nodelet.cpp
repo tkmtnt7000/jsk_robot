@@ -36,7 +36,7 @@
  * lightweight_logger_nodelet.cpp
  * Author: Furushchev <furushchev@jsk.imi.i.u-tokyo.ac.jp>
  */
-
+#include <nodelet/nodelet.h>
 #include <jsk_robot_startup/lightweight_logger.h>
 
 namespace jsk_robot_startup
@@ -49,21 +49,21 @@ namespace jsk_robot_startup
       jsk_topic_tools::StealthRelay::onInit();
 
       // settings for database
-      if (nh_->hasParam("~database"))
+      if (ros::param::has("~database"))
       {
-        nh_->param<std::string>("~database", db_name_, "jsk_robot_lifelog");
+        pnh_->param<std::string>("database", db_name_, "jsk_robot_lifelog");
       }
       else
       {
-        nh_->param<std::string>("/robot/database", db_name_, "jsk_robot_lifelog");
+        pnh_->param<std::string>("/robot/database", db_name_, "jsk_robot_lifelog");
       }
-      if (nh_->hasParam("~collection"))
+      if (ros::param::has("~collection"))
       {
-        nh_->param<std::string>("~collection", col_name_, std::string());
+        pnh_->param<std::string>("collection", col_name_, std::string());
       }
       else
       {
-        nh_->param<std::string>("/robot/name", col_name_, std::string());
+        pnh_->param<std::string>("/robot/name", col_name_, std::string());
       }
 
       if (col_name_.empty())
@@ -138,7 +138,7 @@ namespace jsk_robot_startup
 
       // The message store object is initialized here, since the object waits for connection
       // until the connection to the server is established.
-      msg_store_.reset(new mongodb_store::MessageStoreProxy(*nh_, col_name_, db_name_));
+      msg_store_.reset(new mongodb_store::MessageStoreProxy(*pnh_, col_name_, db_name_));
       initialized_ = true;
 
       // After message store object is initialized, this thread is re-used for
