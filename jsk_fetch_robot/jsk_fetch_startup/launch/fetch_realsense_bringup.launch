@@ -77,7 +77,7 @@
       <arg name="serial_no"             value="$(arg RS_SERIAL_NO_D435_FRONTRIGHT)"/>
       <arg name="tf_prefix"             value="d435_front_right"/>
       <arg name="initial_reset"         value="true"/>
-      <arg name="align_depth"           value="true"/>
+      <arg name="align_depth"           value="false"/>
       <arg name="color_width"           value="640"/>
       <arg name="color_height"          value="480"/>
       <arg name="depth_width"           value="640"/>
@@ -93,7 +93,7 @@
       <arg name="serial_no"             value="$(arg RS_SERIAL_NO_D435_FRONTLEFT)"/>
       <arg name="tf_prefix"             value="d435_front_left"/>
       <arg name="initial_reset"         value="true"/>
-      <arg name="align_depth"           value="true"/>
+      <arg name="align_depth"           value="false"/>
       <arg name="color_width"           value="640"/>
       <arg name="color_height"          value="480"/>
       <arg name="depth_width"           value="640"/>
