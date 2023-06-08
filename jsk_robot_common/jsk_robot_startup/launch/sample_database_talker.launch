@@ -11,7 +11,8 @@
   <include file="$(find jsk_robot_startup)/launch/interaction.launch" >
     <arg name="chat_use_helper" value="false" />
     <arg name="launch_google_chat" value="false" />
-    <arg name="launch_gdrive_server" value="false" />f
+    <arg name="launch_gdrive_server" value="false" />
+    <!-- <arg name="google_credentials_json" value="/var/lib/robot/facialexpression-rpwe-6b3a00d46db8.json" /> -->
   </include>
   <include file="$(find jsk_perception)/launch/vqa.launch" >
     <arg name="host" value="133.11.216.160" />
