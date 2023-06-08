@@ -27,12 +27,13 @@
 
   <!-- Dialogflow Client ROS -->
   <include file="$(find dialogflow_task_executive)/launch/dialogflow_ros.launch">
+    <arg name="override_project_id" value="true" />
     <arg name="credential" value="$(arg google_credentials_json)" />
     <arg name="project_id" value="collaborative-remembering-kwit" />
     <arg name="enable_hotword" value="false" />
   </include>
 
-  <!-- Google Cloud Language -->
+  <!-- google Cloud Language -->
   <include file="$(find ros_google_cloud_language)/launch/analyze_text.launch">
     <arg name="google_cloud_credentials_json" value="$(arg google_credentials_json)" />
   </include>
