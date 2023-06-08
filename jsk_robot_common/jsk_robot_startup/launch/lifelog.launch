@@ -93,6 +93,10 @@
   <node pkg="topic_tools" type="transform" name="publish_trigger_mongodb_event_google_chat_ros_message_activity"
         args="--wait-for-start /google_chat_ros/message_activity /publish_trigger_mongodb_event std_msgs/Header
               'std_msgs.msg.Header(stamp=rospy.Time.now(), frame_id=m._connection_header[&quot;callerid&quot;])' --import std_msgs rospy" />
+    <node pkg="topic_tools" type="transform" name="publish_trigger_mongodb_event_hand_holding"
+        args="--wait-for-start /hand_holding /publish_trigger_mongodb_event std_msgs/Header
+              'std_msgs.msg.Header(stamp=rospy.Time.now(), frame_id=m._connection_header[&quot;callerid&quot;])' --import std_msgs rospy" />
+
 
   <!-- republish compressed/throttled image data only when /publish_trigger_mongodb_event is published -->
   <node name="camera_throttle_nodelet"
