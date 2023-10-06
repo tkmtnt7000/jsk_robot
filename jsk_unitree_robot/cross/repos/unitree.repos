@@ -19,8 +19,8 @@ repositories:
     version: develop
   app_manager:
     type: git
-    url: https://github.com/Affonso-Gui/app_manager
-    version: enable-parallel-run-apps
+    url: https://github.com/PR2/app_manager
+    version: kinetic-devel
     # For parallel feature of app manager
     # https://github.com/PR2/app_manager/pull/59
   google_chat_ros:
@@ -42,3 +42,7 @@ repositories:
     # Also, some users may not be able to use sudo apt install to install python3-venv (sudo command), etc.
     # The following PR will enable catkin_virtualenv in environments without ensurepip by doing get-pip.py within venv.
     # https://github.com/locusrobotics/catkin_virtualenv/pull/90
+  esp_now_ros:
+    type: git
+    url: https://github.com/sktometometo/esp_now_ros
+    version: master

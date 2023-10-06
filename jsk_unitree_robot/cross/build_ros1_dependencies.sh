@@ -4,7 +4,7 @@ TARGET_MACHINE="${TARGET_MACHINE:-arm64v8}"
 HOST_INSTALL_ROOT="${BASE_ROOT:-${PWD}}/"${TARGET_MACHINE}_System
 INSTALL_ROOT=System
 SOURCE_ROOT=${TARGET_MACHINE}_ws_ros1_dependencies_sources
-MAKEFLAGS=${MAKEFLAGS:-'-j4'}
+MAKEFLAGS=${MAKEFLAGS:-'-j40'}
 
 if [ -e "${SOURCE_ROOT}" ]; then
     echo "WARNING: Source directory is found ${SOURCE_ROOT}" 1>&2
