@@ -704,3 +704,11 @@ Args:
     )
   )
 
+(defun get-vqa-result (&key (topic "/photo_taken") (question "What does the scene describe"))
+ "Get VQA result
+  This function assumes that VQA node subscribes /photo_taken as a image topic
+ "
+ (ros::set-dynamic-reconfigure-param "/vqa" "questions" :double question)
+ (ros::publish topic 1)
+ (let* (result (one-shot-subscribe "/vqa/result" jsk_recognition_msgs::VQAResult :timeout 1000))
+   (if result (send (elt (send result :result) 0) :answer))))
