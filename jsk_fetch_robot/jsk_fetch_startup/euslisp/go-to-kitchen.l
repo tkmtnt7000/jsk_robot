@@ -151,7 +151,7 @@
                    (setf (cdr (assoc 'initial-light-on userdata)) light-on)
                    (ros::spin-once)
                    (if light-on
-                       (set-alist 'description (concatenate string "電気がついていたよ" get-vqa-result) userdata)
+                       (set-alist 'description (concatenate string "電気がついていたよ" (get-vqa-result)) userdata)
                        (set-alist 'description "電気がついていなかったよ" userdata))
                    (if *image*
                      (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
@@ -170,7 +170,7 @@
                    (report-light-off)
                    (room-light-on :control-switchbot control-switchbot)
                    (ros::spin-once)
-                   (set-alist 'description (concatenate "電気をつけたよ" get-vqa-result) userdata)
+                   (set-alist 'description (concatenate string "電気をつけたよ" (get-vqa-result)) userdata)
                    (if *image*
                      (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                      (set-alist 'image "" userdata))
@@ -182,10 +182,10 @@
                         (label-names (notify-recognition :location "on the way to kitchen")))
                    (setf (cdr (assoc 'success-go-to-dock-front userdata)) success)
                    (ros::spin-once)
-                   (setq vqa-result get-vqa-result)
+                   (setq vqa-result (get-vqa-result))
                    (if success
-                       (set-alist 'description (concatenate "ドックの前に移動したよ" get-vqa-result) userdata)
-                       (set-alist 'description (concatenate "ドックの前に移動しようとしたけど，迷子になっちゃった" get-vqa-result) userdata))
+                       (set-alist 'description (concatenate string "ドックの前に移動したよ" (get-vqa-result)) userdata)
+                       (set-alist 'description (concatenate string "ドックの前に移動しようとしたけど，迷子になっちゃった" (get-vqa-result)) userdata))
                    (if *image*
                      (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                      (set-alist 'image "" userdata))
@@ -195,7 +195,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (inspect-dock-front :tweet (cdr (assoc 'tweet userdata)))
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "ドックの前の様子を見たよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "ドックの前の様子を見たよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -205,7 +205,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (report-move-to-dock-front-failure)
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "ドックの前に移動できなかったよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "ドックの前に移動できなかったよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -217,8 +217,8 @@
                  (setf (cdr (assoc 'success-go-to-tv-front userdata)) success)
                  (ros::spin-once)
                  (if success
-                     (set-alist 'description (concatenate "テレビの前に移動したよ" get-vqa-result) userdata)
-                     (set-alist 'description (concatenate "テレビの前に移動しようとしたけど，迷子になっちゃった" get-vqa-result) userdata))
+                     (set-alist 'description (concatenate string "テレビの前に移動したよ" (get-vqa-result)) userdata)
+                     (set-alist 'description (concatenate string "テレビの前に移動しようとしたけど，迷子になっちゃった" (get-vqa-result)) userdata))
                  (set-alist 'image "" userdata)
                  success)))
             (:inspect-tv-front
@@ -226,7 +226,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (inspect-tv-front :tweet (cdr (assoc 'tweet userdata)))
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "テレビの前の様子を見たよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "テレビの前の様子を見たよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -236,7 +236,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (report-move-to-tv-front-failure)
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "テレビの前に移動できなかったよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "テレビの前に移動できなかったよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -249,8 +249,8 @@
                  (setf (cdr (assoc 'success-go-to-tv-desk userdata)) success)
                  (ros::spin-once)
                  (if success
-                     (set-alist 'description (concatenate "机の前に移動したよ" get-vqa-result) userdata)
-                     (set-alist 'description (concatenate "机の前に移動しようとしたけど，迷子になっちゃった" get-vqa-result) userdata))
+                     (set-alist 'description (concatenate string "机の前に移動したよ" (get-vqa-result)) userdata)
+                     (set-alist 'description (concatenate string "机の前に移動しようとしたけど，迷子になっちゃった" (get-vqa-result)) userdata))
                  (set-alist 'image "" userdata)
                  success)))
             (:inspect-tv-desk
@@ -258,7 +258,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (inspect-tv-desk :tweet (cdr (assoc 'tweet userdata)))
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "机の様子を確認したよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "机の様子を確認したよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -268,7 +268,7 @@
                (let* (label-names (notify-recognition :location "on the way to kitchen"))
                  (report-move-to-tv-desk-failure)
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "机の前に移動できなかったよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "机の前に移動できなかったよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -281,8 +281,8 @@
                  (setf (cdr (assoc 'success-go-to-desk-back userdata)) success)
                  (ros::spin-once)
                  (if success
-                     (set-alist 'description (concatenate "部屋の後ろに移動したよ" get-vqa-result) userdata)
-                     (set-alist 'description (concatenate "部屋の後ろに移動しようとしたけど，迷子になっちゃった" get-vqa-result) userdata))
+                     (set-alist 'description (concatenate string "部屋の後ろに移動したよ" (get-vqa-result)) userdata)
+                     (set-alist 'description (concatenate string "部屋の後ろに移動しようとしたけど，迷子になっちゃった" (get-vqa-result)) userdata))
                  (set-alist 'image "" userdata)
                  success)))
             (:inspect-desk-back
@@ -290,7 +290,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (inspect-desk-back :tweet (cdr (assoc 'tweet userdata)))
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "部屋の後ろを確認したよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "部屋の後ろを確認したよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -300,7 +300,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (report-move-to-desk-back-failure)
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "部屋の後ろに移動できなかったよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "部屋の後ろに移動できなかったよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -312,8 +312,8 @@
                  (setf (cdr (assoc 'success-go-to-desk-front userdata)) success)
                  (ros::spin-once)
                  (if success
-                     (set-alist 'description (concatenate "部屋の前に移動したよ" get-vqa-result) userdata)
-                     (set-alist 'description (concatenate "部屋の前に移動しようとしたけど，迷子になっちゃった" get-vqa-result) userdata))
+                     (set-alist 'description (concatenate string "部屋の前に移動したよ" (get-vqa-result)) userdata)
+                     (set-alist 'description (concatenate string "部屋の前に移動しようとしたけど，迷子になっちゃった" (get-vqa-result)) userdata))
                  (set-alist 'image "" userdata)
                  success)))
             (:inspect-desk-front
@@ -321,7 +321,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (inspect-desk-front :tweet (cdr (assoc 'tweet userdata)))
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "部屋の前を確認したよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "部屋の前を確認したよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -331,7 +331,7 @@
                (let* ((label-names (notify-recognition :location "on the way to kitchen")))
                  (report-move-to-desk-front-failure)
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "部屋の前に移動できなかったよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "部屋の前に移動できなかったよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -343,8 +343,8 @@
                  (setf (cdr (assoc 'success-go-to-tv-desk userdata)) success)
                  (ros::spin-once)
                  (if success
-                     (set-alist 'description (concatenate "ドアの前に移動したよ" get-vqa-result) userdata)
-                     (set-alist 'description (concatenate "ドアの前に移動しようとしたけど，迷子になっちゃった" get-vqa-result) userdata))
+                     (set-alist 'description (concatenate string "ドアの前に移動したよ" (get-vqa-result)) userdata)
+                     (set-alist 'description (concatenate string "ドアの前に移動しようとしたけど，迷子になっちゃった" (get-vqa-result)) userdata))
                  (set-alist 'image "" userdata)
                      success)))
             (:inspect-kitchen-door-front
@@ -352,7 +352,7 @@
                (let* ((label-names (notify-recognition :location "kitchen-door-front")))
                  (inspect-kitchen-door-front :tweet (cdr (assoc 'tweet userdata)))
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "ドアの前からキッチンの様子を見たよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "ドアの前からキッチンの様子を見たよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -361,7 +361,7 @@
              '(lambda (userdata)
                (report-move-to-kitchen-door-front-failure)
                (ros::spin-once)
-               (set-alist 'description (concatenate "ドアの前に移動できなかったよ" get-vqa-result) userdata)
+               (set-alist 'description (concatenate string "ドアの前に移動できなかったよ" (get-vqa-result)) userdata)
                (set-alist 'image "" userdata)
                t))
             (:move-to-sink-front
@@ -372,8 +372,8 @@
                  (setf (cdr (assoc 'success-go-to-kitchen userdata)) success)
                  (ros::spin-once)
                  (if success
-                     (set-alist 'description (concatenate "キッチンに移動したよ" get-vqa-result) userdata)
-                     (set-alist 'description (concatenate "キッチンに移動しようとしたけど，迷子になっちゃった" get-vqa-result) userdata))
+                     (set-alist 'description (concatenate string "キッチンに移動したよ" (get-vqa-result)) userdata)
+                     (set-alist 'description (concatenate string "キッチンに移動しようとしたけど，迷子になっちゃった" (get-vqa-result)) userdata))
                  (set-alist 'image "" userdata)
                  success)))
             (:inspect-kitchen
@@ -382,7 +382,7 @@
                       (notify-text (if label-names (format nil "~Aがあったよ" label-names) "")))
                  (inspect-kitchen :tweet (cdr (assoc 'tweet userdata)))
                  (ros::spin-once)
-                 (set-alist 'description (concatenate (format nil "キッチンの様子を見たよ。~A" notify-text) get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string (format nil "キッチンの様子を見たよ。~A" notify-text) (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -392,7 +392,7 @@
                (let* ((label-names (notify-recognition :location "on the way to sink-front")))
                  (report-move-to-sink-front-failure)
                  (ros::spin-once)
-                 (set-alist 'description (concatenate "キッチンに行けなかったよ" get-vqa-result) userdata)
+                 (set-alist 'description (concatenate string "キッチンに行けなかったよ" (get-vqa-result)) userdata)
                  (if *image*
                    (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                    (set-alist 'image "" userdata))
@@ -405,15 +405,15 @@
                  (setf (cdr (assoc 'success-go-to-trashcan userdata)) success)
                  (ros::spin-once)
                  (if success
-                     (set-alist 'description (concatenate "ゴミ箱の前に移動したよ" get-vqa-result) userdata)
-                   (set-alist 'description (concatenate "ゴミ箱の前に移動しようとしたけど，迷子になっちゃった" get-vqa-result) userdata))
+                     (set-alist 'description (concatenate string "ゴミ箱の前に移動したよ" (get-vqa-result)) userdata)
+                   (set-alist 'description (concatenate string "ゴミ箱の前に移動しようとしたけど，迷子になっちゃった" (get-vqa-result)) userdata))
                  (set-alist 'image "" userdata)
                  success)))
             (:inspect-trashcan
              '(lambda (userdata)
                (inspect-trashcan :tweet (cdr (assoc 'tweet userdata)))
                (ros::spin-once)
-               (set-alist 'description (concatenate "ゴミ箱の様子を確認したよ" get-vqa-result) userdata)
+               (set-alist 'description (concatenate string "ゴミ箱の様子を確認したよ" (get-vqa-result)) userdata)
                (if *image*
                  (set-alist 'image (remove #\newline (base64encode (send *image* :serialize))) userdata)
                  (set-alist 'image "" userdata))

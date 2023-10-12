@@ -704,11 +704,23 @@ Args:
     )
   )
 
+
+(defun vqa-result-cb (msg)
+  (setq *result* msg))
+
+(ros::subscribe "/vqa/result" jsk_recognition_msgs::VQAResult #'vqa-result-cb)
+(setq *result* nil)
 (defun get-vqa-result (&key (topic "/photo_taken") (question "What does the scene describe"))
  "Get VQA result
   This function assumes that VQA node subscribes /photo_taken as a image topic
  "
- (ros::set-dynamic-reconfigure-param "/vqa" "questions" :double question)
- (ros::publish topic 1)
- (let* (result (one-shot-subscribe "/vqa/result" jsk_recognition_msgs::VQAResult :timeout 1000))
-   (if result (send (elt (send result :result) 0) :answer))))
+ (setq *result* nil)
+ (ros::set-dynamic-reconfigure-param "/vqa" "questions" :string question)
+ (let* ((img (one-shot-subscribe "/head_camera/rgb/image_rect_color" sensor_msgs::Image :timeout 1000)))
+   (ros::publish topic img))
+ (unix::sleep 1)
+ (ros::spin-once)
+ (ros::ros-info "~A" *result*)
+ (if *result* (setq result-text (send (elt (send *result* :result) 0) :answer)) nil)
+ (ros::ros-info "answer: ~A" (send (elt (send *result* :result) 0) :answer))
+ result-text)
