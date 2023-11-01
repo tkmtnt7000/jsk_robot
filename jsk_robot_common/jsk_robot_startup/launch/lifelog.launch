@@ -28,6 +28,9 @@
   <arg name="launch_mongodb" default="false" />
   <arg name="launch_common_logger" default="false" />
 
+  <arg name="use_aws_auto_checkin_trigger" default="false" />
+  <arg name="use_aws_detect_faces_trigger" default="false" />
+
   <arg name="manager" default="mongodb_record_nodelet_manager" />
 
   <param name="robot/database" value="jsk_robot_lifelog"/>
@@ -90,12 +93,12 @@
         args="--wait-for-start $(arg image)/output/compressed /publish_trigger_mongodb_event std_msgs/Header
               'std_msgs.msg.Header(stamp=m.header.stamp, frame_id=m._connection_header[&quot;callerid&quot;])' --import std_msgs" />
 
-  <!-- <node pkg="topic_tools" type="transform" name="publish_trigger_mongodb_event_aws_auto_checkin" -->
-  <!--       args="-\-wait-for-start /aws_auto_checkin_app/output/class /publish_trigger_mongodb_event std_msgs/Header -->
-  <!--             'std_msgs.msg.Header(stamp=m.header.stamp, frame_id=m._connection_header[&quot;callerid&quot;])' -\-import std_msgs" /> -->
-  <!-- <node pkg="topic_tools" type="transform" name="publish_trigger_mongodb_event_aws_detect_faces" -->
-  <!--       args="-\-wait-for-start /aws_detect_faces/attributes /publish_trigger_mongodb_event std_msgs/Header -->
-  <!--             'std_msgs.msg.Header(stamp=m.header.stamp, frame_id=m._connection_header[&quot;callerid&quot;])' -\-import std_msgs" /> -->
+  <node pkg="topic_tools" type="transform" name="publish_trigger_mongodb_event_aws_auto_checkin" if="$(arg use_aws_auto_checkin_trigger)"
+        args="--wait-for-start /aws_auto_checkin_app/output/class /publish_trigger_mongodb_event std_msgs/Header
+              'std_msgs.msg.Header(stamp=m.header.stamp, frame_id=m._connection_header[&quot;callerid&quot;])' --import std_msgs" />
+  <node pkg="topic_tools" type="transform" name="publish_trigger_mongodb_event_aws_detect_faces" if="$(arg use_aws_detect_faces_trigger)"
+        args="--wait-for-start /aws_detect_faces/attributes /publish_trigger_mongodb_event std_msgs/Header
+              'std_msgs.msg.Header(stamp=m.header.stamp, frame_id=m._connection_header[&quot;callerid&quot;])' --import std_msgs" />
   <node pkg="topic_tools" type="transform" name="publish_trigger_mongodb_event_dialogflow_client"
         args="--wait-for-start /dialogflow_client/text_action/result /publish_trigger_mongodb_event std_msgs/Header
               'std_msgs.msg.Header(stamp=m.header.stamp, frame_id=m._connection_header[&quot;callerid&quot;])' --import std_msgs" />
